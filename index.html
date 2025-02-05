@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fun Golf</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="My Awesome App description">
+    <meta name="theme-color" content="#ffffff">
+    
+    <link rel="icon" href="/golf.svg" sizes="any" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png">
+  </head>
+  <body>
+    <main>
+      <div id="header">
+        <div class="logo">
+          <img src="/golf_fun.png"></img>
+        </div>
+        <button data-a11y-dialog-show="my-dialog" class="help-button">
+          <span>How to play 🤔 ?</span>
+        </button>
+        </div>
+      </div>
+      <div id="app"></div>
+      <div id="scorecard">
+        <div id="par-score">Par: </div>
+        <div id="player-score">Score: </div>
+      </div>
+      <div
+        class="dialog-container"
+        id="my-dialog"
+        aria-hidden="true"
+      >
+        <div class="dialog-overlay" data-a11y-dialog-hide></div>
+        <div class="dialog-content" role="document">
+          <button
+            data-a11y-dialog-hide
+            class="dialog-close"
+            aria-label="Close this dialog window"
+          >
+            <svg class="svg-icon" viewBox="0 0 20 20">
+              <path
+                fill="currentcolor"
+                d="M15.898,4.045c-0.271-0.272-0.713-0.272-0.986,0l-4.71,4.711L5.493,4.045c-0.272-0.272-0.714-0.272-0.986,0s-0.272,0.714,0,0.986l4.709,4.711l-4.71,4.711c-0.272,0.271-0.272,0.713,0,0.986c0.136,0.136,0.314,0.203,0.492,0.203c0.179,0,0.357-0.067,0.493-0.203l4.711-4.711l4.71,4.711c0.137,0.136,0.314,0.203,0.494,0.203c0.178,0,0.355-0.067,0.492-0.203c0.273-0.273,0.273-0.715,0-0.986l-4.711-4.711l4.711-4.711C16.172,4.759,16.172,4.317,15.898,4.045z"
+              ></path>
+            </svg>
+          </button>
+
+          <h1>How to play</h1>
+          <p>
+            ...
+          </p>
+        </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

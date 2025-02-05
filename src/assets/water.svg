@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="water.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+   <g
+      id="layer1"
+      transform="matrix(4,0,0,4,-222.17737,-270.65939)">
+      <rect
+         style="fill:#00ccff;stroke-width:0.147222;paint-order:stroke fill markers"
+         id="rect1"
+         width="26.458334"
+         height="26.458334"
+         x="60.829956"
+         y="76.990631"
+         ry="5.7382274"
+         rx="6.6607018" />
+   </g>
+</svg>
