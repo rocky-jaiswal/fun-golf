@@ -60,6 +60,11 @@ main {
   color: #fff;
 }
 
+.scores {
+  width: 90%;
+  display: flex;
+}
+
 .score {
   font-family: 'Bangers', serif;
   font-size: 40px;
@@ -74,6 +79,17 @@ main {
 
 .score-head-2 {
   color: #5affe0;
+}
+
+.reset-game {
+  display: flex;
+  padding: 10px 0;
+}
+
+.reset-game button {
+  width: 100px;
+  background-color: transparent;
+  color: #fff;
 }
 
 .logo {

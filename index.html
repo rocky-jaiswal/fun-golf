@@ -19,7 +19,7 @@
     <main>
       <div id="header">
         <div class="logo">
-          <img src="/golf_fun.png"></img>
+          <img src="/fun_golf.png"></img>
         </div>
         <button data-a11y-dialog-show="my-dialog" class="help-button">
           <span>Help 🤔</span>
@@ -28,13 +28,20 @@
       </div>
       <div id="app"></div>
       <div id="scorecard">
-        <div class="score">
-          <span class="score-head-1">Par:</span>
-          <span id="par-score"></span>
+        <div class="scores">
+          <div class="score">
+            <span class="score-head-1">Par:</span>
+            <span id="par-score"></span>
+          </div>
+          <div class="score">
+            <span class="score-head-2">Score:</span>
+            <span id="player-score"></span>
+          </div>
         </div>
-        <div class="score">
-          <span class="score-head-2">Score:</span>
-          <span id="player-score"></span>
+        <div class="reset-game">
+          <button id="reset-game-btn">
+            <span>Restart 🔁</span>
+          </button>
         </div>
       </div>
       <div

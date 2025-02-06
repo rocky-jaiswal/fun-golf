@@ -37,6 +37,11 @@ const startApp = async () => {
 
   const eventEmitter = new EventEmitter();
 
+  document.getElementById('reset-game-btn')?.addEventListener('click', () => {
+    // eventEmitter.emit('resetGame');
+    window.location.reload();
+  });
+
   setupScoreboard(eventEmitter);
 
   const app = await createApp(elem, eventEmitter);
