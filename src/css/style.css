@@ -53,6 +53,7 @@ main {
 #scorecard {
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
   height: 75px;
   width: 80vw;
   background-color: #515151;
@@ -61,7 +62,7 @@ main {
 }
 
 .scores {
-  width: 90%;
+  width: 83%;
   display: flex;
 }
 

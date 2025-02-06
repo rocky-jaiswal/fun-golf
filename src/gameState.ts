@@ -129,10 +129,10 @@ export class GameState {
 
   private addBall() {
     [
-      [1, 1],
-      [1, this.noOfRows - 1],
-      [this.noOfCols - 1, 1],
-      [this.noOfCols - 1, this.noOfRows - 1],
+      [2, 2],
+      [2, this.noOfRows - 2],
+      [this.noOfCols - 2, 2],
+      [this.noOfCols - 2, this.noOfRows - 2],
     ].map((arr) => {
       this.mainMap[`${arr[0]}|${arr[1]}`] = 'B';
     });

@@ -1,4 +1,4 @@
-import { Container, Graphics, Text, Ticker } from 'pixi.js';
+import { Container, Graphics, Text, TextStyle, Ticker } from 'pixi.js';
 import { GameState } from './gameState';
 import { GameScene } from './types';
 import { getRandomIntBetween } from './util';
@@ -22,9 +22,16 @@ export class ResultScene extends Container implements GameScene {
 
     const text = this.gameState.score <= this.gameState.parScore ? '⛳' : '👋';
 
-    const over = new Text({ text: 'Game Over', style: { fill: '#e13e3e' } });
-    over.x = (this.gameState.width - 100) / 2 - 25;
-    over.y = 85;
+    const style = new TextStyle({
+      fontFamily: 'Bangers',
+      fontSize: 36,
+      fill: '#f26f6f',
+      stroke: { color: '#333', width: 3, join: 'round' },
+    });
+
+    const over = new Text({ text: 'Game Over', style });
+    over.x = (this.gameState.width - 100) / 2 - 45;
+    over.y = 75;
 
     Array(totalEmjois)
       .fill(null)
