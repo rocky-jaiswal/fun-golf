@@ -7,13 +7,18 @@ import tree5PNG from './assets/tree5.png';
 
 import { MainGameScene } from './mainGameScene';
 import { GameState } from './gameState';
+import { SceneManager } from './sceneManager';
+import { ResultScene } from './resultScene';
+import { GameScene } from './types';
 
 export class Game {
   public readonly gameState: GameState;
-  private currentScene: MainGameScene | null = null;
+  public readonly sceneManager: SceneManager;
+  private currentScene: GameScene | null = null;
 
   constructor(gameState: GameState) {
     this.gameState = gameState;
+    this.sceneManager = new SceneManager(gameState);
 
     // Set up game loop
     this.gameState.application.ticker.add(this.update.bind(this));
@@ -43,26 +48,28 @@ export class Game {
   }
 
   private startGame() {
-    // Set up initial scene
-    this.setScene(new MainGameScene(this.gameState));
-  }
-
-  private setScene(scene: MainGameScene) {
-    // Clean up current scene
-    if (this.currentScene) {
-      this.currentScene.cleanup();
-      this.gameState.application.stage.removeChild(this.currentScene);
-    }
-
-    // Set up new scene
-    this.currentScene = scene;
-
-    this.currentScene.init();
-
-    this.gameState.application.stage.addChild(scene);
+    // Set up initial scenes
+    this.sceneManager.addScene('game', new MainGameScene(this.gameState));
+    this.sceneManager.addScene('result', new ResultScene(this.gameState));
   }
 
   update(delta: Ticker) {
+    if (this.sceneManager.allScenes.size === 0) {
+      return;
+    }
+
+    if (!this.currentScene && !this.gameState.ballInHole) {
+      this.currentScene = this.sceneManager.switchTo('game');
+      this.currentScene.init();
+    }
+
+    if (this.gameState.ballInHole && !this.gameState.gameEnded) {
+      console.log('game over...');
+      this.gameState.gameEnded = true;
+      this.currentScene = this.sceneManager.switchTo('result');
+      this.currentScene.init();
+    }
+
     if (this.currentScene) {
       this.currentScene.update(delta);
     }

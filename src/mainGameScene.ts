@@ -1,6 +1,6 @@
 import { Container, Ticker } from 'pixi.js';
 
-import { GameArea, GameState } from './gameState';
+import { GameState } from './gameState';
 
 import { Water } from './water';
 import { Sand } from './sand';
@@ -10,8 +10,9 @@ import { Ball } from './ball';
 import { RotatingLine } from './rotatingLine';
 
 import { getRandomInt } from './util';
+import { GameArea, GameScene } from './types';
 
-export class MainGameScene extends Container {
+export class MainGameScene extends Container implements GameScene {
   private readonly gameState: GameState;
   private ball: Ball | null = null;
   private helpLine: RotatingLine | null = null;

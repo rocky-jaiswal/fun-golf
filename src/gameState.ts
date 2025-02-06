@@ -1,30 +1,13 @@
 import { Application, EventEmitter } from 'pixi.js';
 
 import { getRandomInt } from './util';
+import { GameArea, GameCircle, GamePoint } from './types';
 
 interface Props {
   width: number;
   height: number;
   application: Application;
   eventEmitter: EventEmitter;
-}
-
-interface GameCircle {
-  x: number;
-  y: number;
-  r: number;
-}
-
-interface GamePoint {
-  x: number;
-  y: number;
-}
-
-export interface GameArea {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 }
 
 export class GameState {
@@ -46,6 +29,7 @@ export class GameState {
   // dynamic state parts
   public parScore: number = 4;
   private scoringEvents: Record<string, number>[] = [];
+  public score: number = 0;
 
   public waterAreas: GameArea[] = [];
   public sandAreas: GameArea[] = [];
@@ -69,6 +53,8 @@ export class GameState {
 
   public hitForce: number = 10;
   public hitAngle: number = 0;
+
+  public gameEnded: boolean = false;
 
   constructor(props: Props) {
     this.application = props.application;
@@ -111,6 +97,10 @@ export class GameState {
     this.assignWaterAreas();
     this.assignSandAreas();
     this.assignTreeAreas();
+
+    this.eventEmitter.addListener('scoreChanged', (arg: number) => {
+      this.score += 1;
+    });
 
     // console.log(this.mainMap);
     console.log({ par: this.parScore });

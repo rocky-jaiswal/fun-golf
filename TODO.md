@@ -17,9 +17,9 @@
   - trees ✅
 - dynamic number of obstacles and types based on screen ✅
 - pointer adjustment ✅
-- show scores
-- win / loss / result
-- success / failure screen / animation
+- show scores  ✅
+- win / loss / result  ✅
+- success / failure screen / animation  ✅
 - sounds for hit, hole, collision (water plop, tree / wood hit and sand thud) (https://github.com/goldfire/howler.js#documentation)
 - code clean up (velocity check, acceleration dampening)
 

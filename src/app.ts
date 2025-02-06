@@ -18,10 +18,17 @@ export const createApp = async (elem: HTMLDivElement, eventEmitter: EventEmitter
     height,
   });
 
-  // Create game & state
-  const gameState = new GameState({ application, width, height, eventEmitter });
-  const game = new Game(gameState);
-  await game.init();
+  const startGame = async () => {
+    // Create game & state
+    const gameState = new GameState({ application, width, height, eventEmitter });
+    const game = new Game(gameState);
+    await game.init();
+  };
+
+  eventEmitter.addListener('resetGame', async () => startGame());
+
+  // start game now
+  eventEmitter.emit('resetGame');
 
   return application;
 };
