@@ -1,4 +1,4 @@
-import { Assets, Sprite, Ticker } from 'pixi.js';
+import { Sprite, Ticker } from 'pixi.js';
 
 import { MainGameScene } from './mainGameScene';
 import { GameState } from './gameState';

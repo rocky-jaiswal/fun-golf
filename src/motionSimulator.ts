@@ -5,7 +5,6 @@ export class MotionSimulator {
   private vy: number;
   private ax: number;
   private ay: number;
-  private angle: number;
   private dampingCoefficient: number = 0.94;
 
   // Constants
@@ -24,26 +23,24 @@ export class MotionSimulator {
     // Acceleration
     this.ax = 0;
     this.ay = 0;
-
-    // Angle
-    this.angle = 0;
   }
 
-  applyForce(force: number, angle: number) {
+  applyForce(force: number, _angle: number) {
     this.ax = force;
     this.ay = force;
-
-    this.angle = angle;
   }
 
   update(angle: number) {
     // console.log({ ax: this.ax, ay: this.ay });
+
     const angleRad = (angle * Math.PI) / 180;
     const velocityX = this.ax * Math.cos(angleRad) * 2.7; // we multiply velocity for better UX
     const velocityY = this.ay * Math.sin(angleRad) * 2.7;
 
     this.vx = velocityX + this.ax * this.dt;
     this.vy = velocityY + this.ay * this.dt;
+
+    // console.log({ newv: this.vx, newvy: this.vy });
 
     this.ax *= this.dampingCoefficient;
     this.ay *= this.dampingCoefficient;
@@ -54,7 +51,6 @@ export class MotionSimulator {
     this.y += this.vy * this.dt;
 
     // console.log({ x: this.x, y: this.y });
-    // console.log({ newv: this.vx, newvy: this.vy });
 
     // Stop motion if it's below threshold
     if (Math.abs(this.vx) < this.minThreshold || this.ax < this.minThreshold) this.vx = 0;

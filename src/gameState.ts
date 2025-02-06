@@ -82,8 +82,8 @@ export class GameState {
           });
       });
 
-    console.log({ width: this.width, height: this.height });
-    console.log({ noOfCols: this.noOfCols, noOfRows: this.noOfRows });
+    // console.log({ width: this.width, height: this.height });
+    // console.log({ noOfCols: this.noOfCols, noOfRows: this.noOfRows });
 
     this.addHole();
     this.addBall();
@@ -98,12 +98,11 @@ export class GameState {
     this.assignSandAreas();
     this.assignTreeAreas();
 
-    this.eventEmitter.addListener('scoreChanged', (arg: number) => {
+    this.eventEmitter.addListener('scoreChanged', (_arg: number) => {
       this.score += 1;
     });
 
     // console.log(this.mainMap);
-    console.log({ par: this.parScore });
     this.eventEmitter.emit('parSet', this.parScore);
   }
 
@@ -393,6 +392,7 @@ export class GameState {
     if (event === 'hit' || this.scoringEvents.length === 0) {
       this.scoringEvents.push({ [event]: Date.now() });
       this.eventEmitter.emit('scoreChanged');
+      this.eventEmitter.emit('hit');
       return;
     }
 

@@ -20,16 +20,16 @@
 - show scores  ✅
 - win / loss / result  ✅
 - success / failure screen / animation  ✅
-- sounds for hit, hole, collision (water plop, tree / wood hit and sand thud) (https://github.com/goldfire/howler.js#documentation)
-- code clean up (velocity check, acceleration dampening)
+- PWA assets ✅
+- sounds for hit, hole, collision (water plop, tree / wood hit and sand thud) (https://github.com/goldfire/howler.js#documentation) ✅
+- code clean up (velocity check, acceleration dampening) ✅
 
 ## Release
 
-- Page design (heading, how to play, about)
-- reset & mute buttons
+- Page design (heading, how to play) ✅
+- reset & mute buttons ✅
 - how does it look on mobile
-- PWA assets
-- hosting (Firebase)
+- hosting (Firebase) ✅
 
 ## Good to have
 

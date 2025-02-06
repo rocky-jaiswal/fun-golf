@@ -1,9 +1,13 @@
+import { Howl } from 'howler';
 import { Ticker, Assets } from 'pixi.js';
 
 import ballPNG from './assets/ball.png';
 import tree3PNG from './assets/tree3.png';
 import tree4PNG from './assets/tree4.png';
 import tree5PNG from './assets/tree5.png';
+
+import hitSound from './assets/sounds/hit.mp3';
+import holeSound from './assets/sounds/hole.mp3';
 
 import { MainGameScene } from './mainGameScene';
 import { GameState } from './gameState';
@@ -43,6 +47,22 @@ export class Game {
         alias: 'tree2',
       },
     ]);
+
+    const htSound = new Howl({
+      src: hitSound,
+    });
+
+    const hoSound = new Howl({
+      src: holeSound,
+    });
+
+    this.gameState.eventEmitter.on('hit', () => {
+      htSound.play();
+    });
+
+    this.gameState.eventEmitter.on('inHole', () => {
+      hoSound.play();
+    });
 
     this.startGame();
   }

@@ -7,7 +7,7 @@ export class BallHelper extends Graphics {
   private gameState: GameState;
   private ballSprite: Sprite;
 
-  private forceTimer: number | null = null;
+  private forceTimer: NodeJS.Timeout | null = null;
   private simulator: MotionSimulator | null = null;
 
   private ballHelperX = 0;

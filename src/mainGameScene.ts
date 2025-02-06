@@ -94,6 +94,7 @@ export class MainGameScene extends Container implements GameScene {
       );
 
     if (isInHole) {
+      this.gameState.eventEmitter.emit('inHole');
       this.handleBallInHole();
       this.ball?.update(delta);
       this.helpLine?.update(delta);
