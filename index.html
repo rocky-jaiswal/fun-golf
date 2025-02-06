@@ -5,11 +5,15 @@
     <title>Fun Golf</title>
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="My Awesome App description">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Fun Golf">
+    <meta name="theme-color" content="#4d8c57">
     
     <link rel="icon" href="/golf.svg" sizes="any" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png">
+
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+    </style>
   </head>
   <body>
     <main>
@@ -18,14 +22,20 @@
           <img src="/golf_fun.png"></img>
         </div>
         <button data-a11y-dialog-show="my-dialog" class="help-button">
-          <span>How to play 🤔 ?</span>
+          <span>Help 🤔</span>
         </button>
         </div>
       </div>
       <div id="app"></div>
       <div id="scorecard">
-        <div id="par-score">Par: </div>
-        <div id="player-score">Score: </div>
+        <div class="score">
+          <span class="score-head-1">Par:</span>
+          <span id="par-score"></span>
+        </div>
+        <div class="score">
+          <span class="score-head-2">Score:</span>
+          <span id="player-score"></span>
+        </div>
       </div>
       <div
         class="dialog-container"

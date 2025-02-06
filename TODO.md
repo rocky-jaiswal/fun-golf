@@ -11,12 +11,13 @@
 - hit ball action (direction + force + indicator UI) ✅
 - detect ball inside hole (over 50% overlap, velocity) ✅
 - collision detection & final stopping position / velocity dampening based on obstacle - 
-  - water
-  - sand
-  - game edges
-  - trees
-- dynamic number of obstacles and types based on screen
-- pointer adjustment
+  - water ✅
+  - sand ✅
+  - game edges ✅
+  - trees ✅
+- dynamic number of obstacles and types based on screen ✅
+- pointer adjustment ✅
+- show scores
 - win / loss / result
 - success / failure screen / animation
 - sounds for hit, hole, collision (water plop, tree / wood hit and sand thud) (https://github.com/goldfire/howler.js#documentation)

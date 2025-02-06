@@ -39,8 +39,8 @@ main {
   flex-direction: row;
   height: 120px;
   width: 80vw;
-  background-color: #9ce0e3;
-  margin-bottom: 5px;
+  background-color: #77d9dd;
+  margin-bottom: 10px;
   justify-content: center;
   align-items: center;
 }
@@ -56,16 +56,33 @@ main {
   height: 75px;
   width: 80vw;
   background-color: #515151;
-  margin-top: 5px;
+  margin-top: 10px;
   color: #fff;
 }
 
+.score {
+  font-family: 'Bangers', serif;
+  font-size: 40px;
+  font-weight: 400;
+  font-style: normal;
+  padding: 10px 20px;
+}
+
+.score-head-1 {
+  color: #f26f6f;
+}
+
+.score-head-2 {
+  color: #5affe0;
+}
+
 .logo {
-  min-width: 85%;
+  min-width: 90%;
+  padding-top: 8px;
 }
 
 .help-button {
-  width: 150px;
+  width: 75px;
   height: 30px;
 }
 

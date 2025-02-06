@@ -53,7 +53,7 @@ export class BallHelper extends Graphics {
       this.gameState.ballPositionY + GameState.ballRadius,
       33,
     );
-    this.fill({ color: '#6bae53de', alpha: 0.95 });
+    this.fill({ color: '#f4de66', alpha: 0.5 });
   }
 
   public hide() {
