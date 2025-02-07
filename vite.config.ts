@@ -38,18 +38,18 @@ export default defineConfig({
         ],
         screenshots: [
           {
-            src: 'pwa-512x512.png', // add desktop sreenshot
+            src: 'fun_golf_splash.png', // add desktop sreenshot
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'wide',
-            label: 'My App',
+            label: 'Fun Golf',
           },
           {
             src: 'pwa-512x512.png', // add mobile screenshot
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'narrow',
-            label: 'My App',
+            label: 'FUn Golf',
           },
         ],
       },

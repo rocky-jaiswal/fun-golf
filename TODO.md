@@ -28,11 +28,24 @@
 
 - Page design (heading, how to play) ✅
 - reset & mute buttons ✅
-- how does it look on mobile
 - hosting (Firebase) ✅
 
 ## Good to have
 
-- display par score & number of hits / score (cricket style scoreboard [transparent])
 - background music (maybe?, simple / gentle)
 - shadows / animations for water, trees and sand
+
+## Todos
+
+- pixel art
+- hit circle helper
+- better UI / colors
+- gameplay improvements
+  - pointer
+
+- dynamic number of obstacles (for mobile)
+- how does it look / work on mobile
+- full mobile support
+
+- code cleanup / improvements
+- better game end / result screen & animation
