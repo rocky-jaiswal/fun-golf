@@ -71,16 +71,14 @@ export class Game {
     // Set up initial scenes
     this.sceneManager.addScene('game', new MainGameScene(this.gameState));
     this.sceneManager.addScene('result', new ResultScene(this.gameState));
+
+    this.currentScene = this.sceneManager.switchTo('game');
+    this.currentScene.init();
   }
 
   update(delta: Ticker) {
     if (this.sceneManager.allScenes.size === 0) {
       return;
-    }
-
-    if (!this.currentScene && !this.gameState.ballInHole) {
-      this.currentScene = this.sceneManager.switchTo('game');
-      this.currentScene.init();
     }
 
     if (this.gameState.ballInHole && !this.gameState.gameEnded) {

@@ -56,10 +56,6 @@ export class ResultScene extends Container implements GameScene {
 
   public update(_delta: Ticker) {
     this.container.forEach((t, i) => {
-      // console.log(newX);
-      // console.log(i);
-      // console.log(this.directionsX);
-
       if (this.directionsX[i] === 'right') {
         if (t.x >= this.gameState.width - 100) {
           this.directionsX[i] = 'left';
