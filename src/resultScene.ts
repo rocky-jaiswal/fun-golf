@@ -69,7 +69,7 @@ export class ResultScene extends Container implements GameScene {
       }
 
       if (this.directionsY[i] === 'down') {
-        if (t.y >= 100) {
+        if (t.y >= 120) {
           this.directionsY[i] = 'up';
         }
       }
