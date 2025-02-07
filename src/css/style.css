@@ -31,7 +31,7 @@ main {
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background-color: #429177;
+  background-color: #63b097;
 }
 
 #header {
@@ -39,7 +39,7 @@ main {
   flex-direction: row;
   height: 120px;
   width: 80vw;
-  background-color: #77d9dd;
+  background-color: #98d4ff;
   margin-bottom: 10px;
   justify-content: center;
   align-items: center;

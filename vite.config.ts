@@ -12,7 +12,7 @@ export default defineConfig({
         name: 'Fun Golf',
         short_name: 'Fun Golf',
         description: 'Fun Golf',
-        theme_color: '#4d8c57',
+        theme_color: '#63b097',
         icons: [
           {
             src: 'pwa-64x64.png',
