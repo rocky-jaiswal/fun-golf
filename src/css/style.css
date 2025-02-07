@@ -54,15 +54,17 @@ main {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  align-items: center;
   height: 75px;
   width: 80vw;
   background-color: #515151;
-  margin-top: 10px;
   color: #fff;
+  margin-top: 10px;
+  padding: 10px;
 }
 
 .scores {
-  width: 83%;
+  width: 80%;
   display: flex;
 }
 
@@ -71,7 +73,6 @@ main {
   font-size: 40px;
   font-weight: 400;
   font-style: normal;
-  padding: 10px 20px;
 }
 
 .score-head-1 {
@@ -80,27 +81,18 @@ main {
 
 .score-head-2 {
   color: #5affe0;
+  padding-left: 20px;
 }
 
-.reset-game {
-  display: flex;
-  padding: 10px 0;
-}
-
-.reset-game button {
+.actions-game button {
   width: 100px;
+  height: 30px;
   background-color: transparent;
   color: #fff;
 }
 
 .logo {
-  min-width: 90%;
-  padding-top: 8px;
-}
-
-.help-button {
-  width: 75px;
-  height: 30px;
+  padding-top: 10px;
 }
 
 /**

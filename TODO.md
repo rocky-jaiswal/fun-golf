@@ -37,11 +37,11 @@
 
 ## Todos
 
-- pixel art
-- hit circle helper
+- pixel art ✅
+- hit circle helper ✅
 - better UI / colors
 - gameplay improvements
-  - pointer
+  - pointer ✅
 
 - dynamic number of obstacles (for mobile)
 - how does it look / work on mobile
