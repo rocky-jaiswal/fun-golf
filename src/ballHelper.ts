@@ -10,9 +10,6 @@ export class BallHelper extends Graphics {
   private forceTimer: NodeJS.Timeout | null = null;
   private simulator: MotionSimulator | null = null;
 
-  private ballHelperX = 0;
-  private ballHelperY = 0;
-
   constructor(gameState: GameState, ballSprite: Sprite) {
     super();
 
@@ -67,14 +64,19 @@ export class BallHelper extends Graphics {
   }
 
   private onMove(e: FederatedPointerEvent) {
-    if (this.ballHelperY < e.client.y || this.ballHelperX < e.client.x) {
-      this.gameState.hitAngle = this.gameState.hitAngle + 3;
-    } else {
-      this.gameState.hitAngle = this.gameState.hitAngle - 3;
-    }
+    if (this.gameState.manualRotation) {
+      // console.log(e.globalX);
+      // console.log(e.globalY);
 
-    this.ballHelperX = e.client.x;
-    this.ballHelperY = e.client.y;
+      const angleRadians = Math.atan2(
+        e.globalY - (this.gameState.ballPositionY + GameState.ballRadius),
+        e.globalX - (this.gameState.ballPositionX + GameState.ballRadius),
+      );
+
+      const angleDegrees = angleRadians * (180 / Math.PI);
+      // console.log(angleDegrees);
+      this.gameState.hitAngle = angleDegrees;
+    }
   }
 
   private onLeave() {
