@@ -15,8 +15,8 @@ export default defineConfig({
         theme_color: '#63b097',
         icons: [
           {
-            src: 'pwa-64x64.png',
-            sizes: '64x64',
+            src: 'pwa-96x96.png',
+            sizes: '96x96',
             type: 'image/png',
           },
           {
@@ -30,7 +30,7 @@ export default defineConfig({
             type: 'image/png',
           },
           {
-            src: 'maskable-icon-512x512.png',
+            src: 'maskable-icon.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
