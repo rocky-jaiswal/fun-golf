@@ -95,6 +95,19 @@ main {
   padding-top: 10px;
 }
 
+.instructions {
+  display: flex;
+  flex-direction: column;
+  width: 1000px;
+  height: 575px;
+  padding: 5px;
+}
+
+.instructions-2 {
+  display: flex;
+  font-size: 20px;
+}
+
 /**
  * 1. Make the dialog container, and its child overlay spread across
  *    the entire window.
@@ -182,6 +195,7 @@ main {
 .dialog-content h1 {
   margin: 0;
   font-size: 1.25em;
+  margin-bottom: 10px;
 }
 
 .dialog-close {

@@ -49,6 +49,7 @@ const startApp = async () => {
   elem.appendChild(app.canvas);
 };
 
+// it all starts here
 document.addEventListener('DOMContentLoaded', (_event: unknown) => {
   startApp()
     .then(() => console.log('app started'))
