@@ -26,7 +26,7 @@ const setupScoreboard = (eventEmitter: EventEmitter) => {
 };
 
 const startApp = async () => {
-  const dialogEl = document.getElementById('my-dialog');
+  const dialogEl = document.getElementById('help-dialog');
   new A11yDialog(dialogEl!);
 
   const elem = document.querySelector<HTMLDivElement>('#app');

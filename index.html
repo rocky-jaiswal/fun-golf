@@ -30,7 +30,6 @@
         <div class="logo">
           <img src="/fun_golf.png"></img>
         </div>
-        </div>
       </div>
       <div id="app"></div>
       <div id="scorecard">
@@ -48,14 +47,14 @@
           <button id="reset-game-btn">
             <span>Restart 🔁</span>
           </button>
-          <button data-a11y-dialog-show="my-dialog" class="help-button">
+          <button data-a11y-dialog-show="help-dialog" class="help-button">
             <span>Help 🤔</span>
           </button>
         </div>
       </div>
       <div
         class="dialog-container"
-        id="my-dialog"
+        id="help-dialog"
         aria-hidden="true"
       >
         <div class="dialog-overlay" data-a11y-dialog-hide></div>
@@ -90,6 +89,7 @@
             </div>
           </div>
         </div>
+      </div>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
