@@ -110,12 +110,13 @@ export class GameState {
     let x = Math.ceil(this.noOfCols / 2);
     let y = Math.ceil(this.noOfRows / 2);
 
-    let iter = 0;
+    let exists = false;
 
-    while (iter < 1) {
+    while (!exists) {
       if (this.mainMap[`${x}|${y}`] === 'G') {
         this.mainMap[`${x}|${y}`] = 'H';
-        iter += 1;
+
+        exists = true;
         break;
       }
 
