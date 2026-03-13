@@ -73,7 +73,7 @@ export class RotatingLine {
     }
 
     if (this.gameState.autoRotation) {
-      if (this.gameState.hitAngle === 360) {
+      if (this.gameState.hitAngle >= 360) {
         this.gameState.hitAngle = 0;
       } else {
         this.gameState.hitAngle += 1.5;

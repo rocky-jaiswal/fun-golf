@@ -162,7 +162,7 @@ export class GameState {
         };
 
         iter2 += 1;
-        if (x < this.width && y < this.height && this.mainMap[`${x}|${y}`] === 'G') {
+        if (x >= 0 && x < this.noOfCols && y >= 0 && y < this.noOfRows && this.mainMap[`${x}|${y}`] === 'G') {
           this.mainMap[`${x}|${y}`] = 'W';
           // console.log(1);
 
@@ -196,7 +196,7 @@ export class GameState {
         };
 
         iter2 += 1;
-        if (x < this.width && y < this.height && this.mainMap[`${x}|${y}`] === 'G') {
+        if (x >= 0 && x < this.noOfCols && y >= 0 && y < this.noOfRows && this.mainMap[`${x}|${y}`] === 'G') {
           this.mainMap[`${x}|${y}`] = 'S';
           // console.log(1);
 
@@ -279,7 +279,7 @@ export class GameState {
     // console.log(obstacles);
 
     const max = Math.max(...obstacles);
-    const finalPos = getRandomInt(4); // obstacles.findIndex((o) => o === max);
+    const finalPos = obstacles.findIndex((o) => o === max);
 
     ballPos.forEach((p, i) => {
       if (i !== finalPos) {

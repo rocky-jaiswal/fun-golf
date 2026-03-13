@@ -38,22 +38,47 @@ export class BallHelper extends Graphics {
     this.draw();
   }
 
+  private powerColor(pct: number): number {
+    if (pct < 0.33) return 0x00ff04;
+    if (pct < 0.55) return 0xfffe00;
+    if (pct < 0.78) return 0xff5700;
+    return 0xff0000;
+  }
+
   public draw() {
+    if (this.destroyed || !this.ballSprite || this.ballSprite.destroyed) return;
     this.clear();
 
     if (this.ballSprite.alpha === 0) {
       this.ballSprite.alpha = 1;
     }
 
-    this.circle(
-      this.gameState.ballPositionX + GameState.ballRadius,
-      this.gameState.ballPositionY + GameState.ballRadius,
-      33,
-    );
+    const cx = this.gameState.ballPositionX + GameState.ballRadius;
+    const cy = this.gameState.ballPositionY + GameState.ballRadius;
+
+    this.circle(cx, cy, 33);
     this.fill({ color: '#f4de66', alpha: 0.5 });
+
+    // Power arc — shown when force has been charged above default
+    if (this.gameState.hitForce > 10) {
+      const pct = (this.gameState.hitForce - 10) / 90;
+      const startAngle = -Math.PI / 2;
+      const endAngle = startAngle + pct * Math.PI * 2;
+
+      // Background ring — moveTo prevents stray line from origin
+      this.moveTo(cx + 42, cy);
+      this.arc(cx, cy, 42, 0, Math.PI * 2);
+      this.stroke({ width: 4, color: 0xffffff, alpha: 0.15 });
+
+      // Charged arc
+      this.moveTo(cx + 42 * Math.cos(startAngle), cy + 42 * Math.sin(startAngle));
+      this.arc(cx, cy, 42, startAngle, endAngle);
+      this.stroke({ width: 4, color: this.powerColor(pct), alpha: 0.9 });
+    }
   }
 
   public hide() {
+    if (this.destroyed || !this.ballSprite || this.ballSprite.destroyed) return;
     this.clear();
     this.ballSprite.alpha = 0;
   }
@@ -65,16 +90,12 @@ export class BallHelper extends Graphics {
 
   private onMove(e: FederatedPointerEvent) {
     if (this.gameState.manualRotation) {
-      // console.log(e.globalX);
-      // console.log(e.globalY);
-
       const angleRadians = Math.atan2(
         e.globalY - (this.gameState.ballPositionY + GameState.ballRadius),
         e.globalX - (this.gameState.ballPositionX + GameState.ballRadius),
       );
 
       const angleDegrees = angleRadians * (180 / Math.PI);
-      // console.log(angleDegrees);
       this.gameState.hitAngle = angleDegrees;
     }
   }
@@ -95,7 +116,6 @@ export class BallHelper extends Graphics {
     this.forceTimer = setInterval(() => {
       if (this.gameState.hitForce < 100) {
         this.gameState.hitForce = this.gameState.hitForce + 10;
-        // console.log(this.gameState.hitForce);
       }
     }, 200);
   }
@@ -114,10 +134,31 @@ export class BallHelper extends Graphics {
     this.simulator.applyForce(this.gameState.hitForce, this.gameState.hitAngle);
   }
 
+  public bounceHorizontal() {
+    if (!this.simulator) return;
+    this.simulator.reflectY();
+    this.gameState.hitAngle = this.simulator.getHeading();
+  }
+
+  public bounceVertical() {
+    if (!this.simulator) return;
+    this.simulator.reflectX();
+    this.gameState.hitAngle = this.simulator.getHeading();
+  }
+
+  public correctPosition(x: number, y: number) {
+    if (!this.ballSprite || this.ballSprite.destroyed) return;
+    this.gameState.ballPositionX = x;
+    this.gameState.ballPositionY = y;
+    this.simulator?.setPosition(x, y);
+  }
+
   public update(_delta: Ticker) {
+    if (this.destroyed || !this.ballSprite || this.ballSprite.destroyed) return;
+
     if (this.gameState.ballInHole) {
-      this.ballSprite!.x = this.gameState.ballPositionX + GameState.ballRadius;
-      this.ballSprite!.y = this.gameState.ballPositionY + GameState.ballRadius;
+      this.ballSprite.x = this.gameState.ballPositionX + GameState.ballRadius;
+      this.ballSprite.y = this.gameState.ballPositionY + GameState.ballRadius;
 
       this.draw();
 
@@ -134,29 +175,31 @@ export class BallHelper extends Graphics {
       this.draw();
     }
 
-    if (this.gameState.ballInMotion) {
-      const state = this.simulator?.update(this.gameState.hitAngle);
+    if (!this.gameState.ballInMotion) return;
 
-      this.gameState.ballPositionX = Math.ceil(state!.x);
-      this.gameState.ballPositionY = Math.ceil(state!.y);
+    const state = this.simulator?.update(this.gameState.hitAngle);
+    if (!state) {
+      this.gameState.ballInMotion = false;
+      this.gameState.hitForce = 20;
+      return;
+    }
 
-      this.gameState.ballVelocityX = state?.vx ?? 0;
-      this.gameState.ballVelocityY = state?.vy ?? 0;
+    this.gameState.ballPositionX = Math.ceil(state.x);
+    this.gameState.ballPositionY = Math.ceil(state.y);
 
-      this.ballSprite.x = this.gameState.ballPositionX + GameState.ballRadius;
-      this.ballSprite.y = this.gameState.ballPositionY + GameState.ballRadius;
+    this.gameState.ballVelocityX = state.vx;
+    this.gameState.ballVelocityY = state.vy;
 
-      // Stop if object has essentially stopped moving
-      if (Math.abs(this.gameState.ballVelocityX) <= 0 || Math.abs(this.gameState.ballVelocityY) <= 0) {
-        this.gameState.ballVelocityX = 0;
-        this.gameState.ballVelocityY = 0;
+    this.ballSprite.x = this.gameState.ballPositionX + GameState.ballRadius;
+    this.ballSprite.y = this.gameState.ballPositionY + GameState.ballRadius;
 
-        this.gameState.ballInMotion = false;
-        this.gameState.hitForce = 20;
+    // Stop if object has essentially stopped moving
+    if (this.gameState.ballVelocityX === 0 && this.gameState.ballVelocityY === 0) {
+      this.gameState.ballInMotion = false;
+      this.gameState.hitForce = 20;
 
-        // redraw the ball hit helper now
-        this.draw();
-      }
+      // redraw the ball hit helper now
+      this.draw();
     }
   }
 }

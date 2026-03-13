@@ -3,32 +3,33 @@ import { Application, EventEmitter } from 'pixi.js';
 import { Game } from './game';
 import { GameState } from './gameState';
 
-export const createApp = async (elem: HTMLDivElement, eventEmitter: EventEmitter) => {
-  const width = elem.getBoundingClientRect().width;
-  const height = elem.getBoundingClientRect().height;
-
-  // Create a PixiJS application.
+export const createApp = async () => {
   const application = new Application();
 
-  // Intialize the application.
   await application.init({
     background: '#4d8c57',
     antialias: true,
-    width,
-    height,
+    resizeTo: window,
   });
 
+  document.getElementById('app')!.appendChild(application.canvas);
+
+  let currentGame: Game | null = null;
+
   const startGame = async () => {
-    // Create game & state
+    if (currentGame) {
+      currentGame.destroy();
+    }
+    application.stage.removeChildren();
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const eventEmitter = new EventEmitter();
+
     const gameState = new GameState({ application, width, height, eventEmitter });
-    const game = new Game(gameState);
-    await game.init();
+    currentGame = new Game(gameState, startGame);
+    await currentGame.init();
   };
 
-  eventEmitter.addListener('resetGame', async () => startGame());
-
-  // start game now
-  eventEmitter.emit('resetGame');
-
-  return application;
+  await startGame();
 };

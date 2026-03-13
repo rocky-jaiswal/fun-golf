@@ -3,9 +3,8 @@ export class MotionSimulator {
   private y: number;
   private vx: number;
   private vy: number;
-  private ax: number;
-  private ay: number;
   private dampingCoefficient: number = 0.94;
+  private readonly restitutionCoefficient: number = 0.86;
 
   // Constants
   private readonly minThreshold: number = 0.9;
@@ -19,42 +18,24 @@ export class MotionSimulator {
     // Velocity
     this.vx = 0;
     this.vy = 0;
-
-    // Acceleration
-    this.ax = 0;
-    this.ay = 0;
   }
 
-  applyForce(force: number, _angle: number) {
-    this.ax = force;
-    this.ay = force;
-  }
-
-  update(angle: number) {
-    // console.log({ ax: this.ax, ay: this.ay });
-
+  applyForce(force: number, angle: number) {
     const angleRad = (angle * Math.PI) / 180;
-    const velocityX = this.ax * Math.cos(angleRad) * 2.7; // we multiply velocity for better UX
-    const velocityY = this.ay * Math.sin(angleRad) * 2.7;
+    this.vx = force * Math.cos(angleRad) * 2.7;
+    this.vy = force * Math.sin(angleRad) * 2.7;
+  }
 
-    this.vx = velocityX + this.ax * this.dt;
-    this.vy = velocityY + this.ay * this.dt;
-
-    // console.log({ newv: this.vx, newvy: this.vy });
-
-    this.ax *= this.dampingCoefficient;
-    this.ay *= this.dampingCoefficient;
-
-    // console.log({ newax: this.ax, neway: this.ay });
-
+  update(_angle: number) {
     this.x += this.vx * this.dt;
     this.y += this.vy * this.dt;
 
-    // console.log({ x: this.x, y: this.y });
+    this.vx *= this.dampingCoefficient;
+    this.vy *= this.dampingCoefficient;
 
     // Stop motion if it's below threshold
-    if (Math.abs(this.vx) < this.minThreshold || this.ax < this.minThreshold) this.vx = 0;
-    if (Math.abs(this.vy) < this.minThreshold || this.ax < this.minThreshold) this.vy = 0;
+    if (Math.abs(this.vx) < this.minThreshold) this.vx = 0;
+    if (Math.abs(this.vy) < this.minThreshold) this.vy = 0;
 
     return {
       x: this.x,
@@ -62,5 +43,22 @@ export class MotionSimulator {
       vx: this.vx,
       vy: this.vy,
     };
+  }
+
+  public reflectX() {
+    this.vx *= -this.restitutionCoefficient;
+  }
+
+  public reflectY() {
+    this.vy *= -this.restitutionCoefficient;
+  }
+
+  public getHeading() {
+    return (Math.atan2(this.vy, this.vx) * 180) / Math.PI;
+  }
+
+  public setPosition(x: number, y: number) {
+    this.x = x;
+    this.y = y;
   }
 }

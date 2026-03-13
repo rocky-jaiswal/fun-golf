@@ -20,7 +20,7 @@ export class SceneManager {
     this.allScenes.set(name, scene);
   }
 
-  switchTo(sceneName: string): GameScene {
+  switchTo(sceneName: string, onSwitched?: () => void): GameScene {
     const newScene = this.allScenes.get(sceneName);
 
     if (!newScene) {
@@ -34,15 +34,19 @@ export class SceneManager {
 
     this.gameState.application.stage.addChild(fade);
 
+    const previousScene = this.currentScene;
+
     gsap.to(fade, {
       alpha: 1,
       duration: 0.25,
       onComplete: () => {
-        if (this.currentScene) {
-          this.gameState.application.stage.removeChild(this.currentScene);
+        if (previousScene) {
+          (previousScene as unknown as GameScene).cleanup?.();
+          this.gameState.application.stage.removeChild(previousScene);
         }
         this.gameState.application.stage.addChild(newScene);
         this.currentScene = newScene;
+        onSwitched?.();
 
         gsap.to(fade, {
           alpha: 0,

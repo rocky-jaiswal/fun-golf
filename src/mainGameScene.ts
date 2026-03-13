@@ -6,6 +6,8 @@ import { Water } from './water';
 import { Sand } from './sand';
 import { Tree } from './tree';
 import { Hole } from './hole';
+import { GrassBackground } from './grassBackground';
+import { Vignette } from './vignette';
 import { Ball } from './ball';
 import { RotatingLine } from './rotatingLine';
 
@@ -16,6 +18,8 @@ export class MainGameScene extends Container implements GameScene {
   private readonly gameState: GameState;
   private ball: Ball | null = null;
   private helpLine: RotatingLine | null = null;
+  private water: Water | null = null;
+  private treeCollisionActive: boolean = false;
 
   constructor(gameState: GameState) {
     super();
@@ -24,10 +28,12 @@ export class MainGameScene extends Container implements GameScene {
   }
 
   public init() {
+    GrassBackground.add(this, this.gameState);
     Hole.addHole(this, this.gameState);
-    Water.addWater(this, this.gameState);
+    this.water = Water.addWater(this, this.gameState);
     Sand.addSand(this, this.gameState);
     Tree.addTrees(this, this.gameState);
+    Vignette.add(this, this.gameState);
 
     this.ball = new Ball(this.gameState).addBall(this);
     this.helpLine = new RotatingLine(this.gameState).addHelpLine(this);
@@ -44,7 +50,9 @@ export class MainGameScene extends Container implements GameScene {
       let x = this.gameState.ballPositionX;
       let y = this.gameState.ballPositionY;
 
-      while (this.gameState.ballInHazard) {
+      let safety = 0;
+      while (this.gameState.ballInHazard && safety < 60) {
+        safety++;
         this.gameState.ballInHazard = areas.some((area) => {
           return this.gameState.isPointInArea({ x: x, y: y }, area);
         });
@@ -52,6 +60,12 @@ export class MainGameScene extends Container implements GameScene {
         const rand = getRandomInt(4);
         x = x + 12 * (rand % 2 === 0 ? 1 : -1);
         y = y + 12 * (rand % 2 === 0 ? 1 : -1);
+      }
+
+      if (this.gameState.ballInHazard) {
+        x = this.gameState.width / 2;
+        y = this.gameState.height / 2;
+        this.gameState.ballInHazard = false;
       }
 
       this.gameState.ballPositionX = x;
@@ -62,14 +76,12 @@ export class MainGameScene extends Container implements GameScene {
     if (isInWater && !this.gameState.calculatingNewBallPosition) {
       this.gameState.calculatingNewBallPosition = true; // by the time this is set resetBall is called a few times
       this.gameState.addScoringEvent('water');
-      console.log('plop!');
       resetBall(this.gameState.waterAreas);
     }
 
     if (isInSand && !this.gameState.calculatingNewBallPosition) {
       this.gameState.calculatingNewBallPosition = true;
       this.gameState.addScoringEvent('sand');
-      console.log('thud!');
       resetBall(this.gameState.sandAreas);
     }
   }
@@ -96,6 +108,7 @@ export class MainGameScene extends Container implements GameScene {
     if (isInHole) {
       this.gameState.eventEmitter.emit('inHole');
       this.handleBallInHole();
+      this.water?.update(delta);
       this.ball?.update(delta);
       this.helpLine?.update(delta);
       return;
@@ -104,31 +117,33 @@ export class MainGameScene extends Container implements GameScene {
     const hasHitEdge =
       this.gameState.ballPositionX <= 0 ||
       this.gameState.ballPositionY <= 0 ||
-      this.gameState.ballPositionX + GameState.ballRadius >= this.gameState.width ||
-      this.gameState.ballPositionY + GameState.ballRadius >= this.gameState.height;
+      this.gameState.ballPositionX + GameState.ballRadius * 2 >= this.gameState.width ||
+      this.gameState.ballPositionY + GameState.ballRadius * 2 >= this.gameState.height;
 
     if (hasHitEdge) {
-      console.log('ping!');
+      let newX = this.gameState.ballPositionX;
+      let newY = this.gameState.ballPositionY;
 
       if (this.gameState.ballPositionX <= 0) {
-        this.gameState.ballPositionX = 1;
-      }
-      if (this.gameState.ballPositionY <= 0) {
-        this.gameState.ballPositionY = 1;
-      }
-      if (this.gameState.ballPositionX + GameState.ballRadius >= this.gameState.width) {
-        this.gameState.ballPositionX = this.gameState.width - 2 * GameState.ballRadius;
-      }
-      if (this.gameState.ballPositionY + GameState.ballRadius >= this.gameState.height) {
-        this.gameState.ballPositionY = this.gameState.height - 2 * GameState.ballRadius;
+        newX = 1;
+        this.ball?.bounceVertical();
+      } else if (this.gameState.ballPositionX + GameState.ballRadius * 2 >= this.gameState.width) {
+        newX = this.gameState.width - 2 * GameState.ballRadius;
+        this.ball?.bounceVertical();
       }
 
-      this.gameState.ballVelocityX = 0;
-      this.gameState.ballVelocityY = 0;
-      this.gameState.ballInMotion = false;
-      this.gameState.hitForce = 20;
+      if (this.gameState.ballPositionY <= 0) {
+        newY = 1;
+        this.ball?.bounceHorizontal();
+      } else if (this.gameState.ballPositionY + GameState.ballRadius * 2 >= this.gameState.height) {
+        newY = this.gameState.height - 2 * GameState.ballRadius;
+        this.ball?.bounceHorizontal();
+      }
+
+      this.ball?.correctPosition(newX, newY);
 
       // Update game objects
+      this.water?.update(delta);
       this.ball?.update(delta);
       this.helpLine?.update(delta);
 
@@ -143,19 +158,26 @@ export class MainGameScene extends Container implements GameScene {
       );
 
     if (hasHitTree) {
-      this.gameState.hitAngle = this.gameState.hitAngle + 60;
+      if (!this.treeCollisionActive) {
+        this.treeCollisionActive = true;
+        this.gameState.hitAngle = this.gameState.hitAngle + 60;
 
-      // move the ball a bit
-      const rand = getRandomInt(4);
-      this.gameState.ballPositionX = this.gameState.ballPositionX + 12 * (rand % 2 === 0 ? 1 : -1);
-      this.gameState.ballPositionY = this.gameState.ballPositionY + 12 * (rand % 2 === 0 ? 1 : -1);
+        // move the ball a bit
+        const rand = getRandomInt(4);
+        const newX = this.gameState.ballPositionX + 12 * (rand % 2 === 0 ? 1 : -1);
+        const newY = this.gameState.ballPositionY + 12 * (rand % 2 === 0 ? 1 : -1);
+        this.ball?.correctPosition(newX, newY);
+      }
 
       // Update game objects
+      this.water?.update(delta);
       this.ball?.update(delta);
       this.helpLine?.update(delta);
 
       return;
     }
+
+    this.treeCollisionActive = false;
 
     const isInWater =
       Math.abs(this.gameState.ballVelocityX) < 30 &&
@@ -181,6 +203,7 @@ export class MainGameScene extends Container implements GameScene {
     }
 
     // Update game objects
+    this.water?.update(delta);
     this.ball?.update(delta);
     this.helpLine?.update(delta);
   }
@@ -188,6 +211,9 @@ export class MainGameScene extends Container implements GameScene {
   public cleanup() {
     this.ball?.destroy();
     this.helpLine?.destroy();
+    this.ball = null;
+    this.helpLine = null;
+    this.water = null;
 
     // Clean up resources when scene is destroyed
     this.removeAllListeners();

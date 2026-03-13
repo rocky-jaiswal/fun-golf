@@ -1,107 +1,120 @@
 import { Container, Graphics, Text, TextStyle, Ticker } from 'pixi.js';
+
 import { GameState } from './gameState';
 import { GameScene } from './types';
 import { getRandomInt, getRandomIntBetween } from './util';
 
 export class ResultScene extends Container implements GameScene {
   private readonly gameState: GameState;
-
-  private container: Text[] = [];
+  private readonly onReset: () => void;
+  private emojis: Text[] = [];
   private directionsX: Record<number, string> = {};
   private directionsY: Record<number, string> = {};
 
-  constructor(gameState: GameState) {
+  constructor(gameState: GameState, onReset: () => void) {
     super();
-
     this.gameState = gameState;
+    this.onReset = onReset;
   }
 
   public init() {
-    const rect = new Graphics();
-    rect.roundRect(50, 50, this.gameState.width - 100, 100, 8);
-    rect.fill({ color: '#f1f1f1', alpha: 0.5 });
+    this.removeChildren();
+    this.emojis = [];
+    this.directionsX = {};
+    this.directionsY = {};
 
-    const totalEmjois = 20;
+    const W = this.gameState.width;
+    const H = this.gameState.height;
+    const isUnderPar = this.gameState.score <= this.gameState.parScore;
+    const emoji = isUnderPar ? '⛳' : '👍';
 
-    const text = this.gameState.score <= this.gameState.parScore ? '⛳' : '👍';
+    // Floating emojis spread across full screen
+    Array(24).fill(null).forEach((_, i) => {
+      const t = new Text({ text: emoji });
+      t.x = getRandomIntBetween(20, W - 40);
+      t.y = getRandomIntBetween(20, H - 40);
+      this.emojis.push(t);
+      this.directionsX[i] = getRandomInt(2) === 0 ? 'left' : 'right';
+      this.directionsY[i] = getRandomInt(2) === 0 ? 'up' : 'down';
+      this.addChild(t);
+    });
 
-    const style = new TextStyle({
+    // Centered result panel
+    const PW = Math.min(340, W - 40);
+    const PH = 190;
+    const px = (W - PW) / 2;
+    const py = (H - PH) / 2;
+
+    const panel = new Graphics();
+    panel.roundRect(px, py, PW, PH, 14);
+    panel.fill({ color: 0x000000, alpha: 0.78 });
+    panel.stroke({ color: isUnderPar ? 0x4ade80 : 0xffc947, width: 2 });
+    this.addChild(panel);
+
+    const titleStyle = new TextStyle({
       fontFamily: 'Bangers',
-      fontSize: 36,
+      fontSize: 44,
       fill: '#f26f6f',
       stroke: { color: '#333', width: 3, join: 'round' },
     });
+    const title = new Text({ text: 'Game Over!', style: titleStyle });
+    title.x = px + PW / 2 - title.width / 2;
+    title.y = py + 16;
+    this.addChild(title);
 
-    const over = new Text({ text: 'Game Over!', style });
-    over.x = (this.gameState.width - 100) / 2 - 45;
-    over.y = 75;
+    const resultText = isUnderPar
+      ? `Under par! ${emoji}`
+      : `Score: ${this.gameState.score}  /  Par: ${this.gameState.parScore}`;
+    const subStyle = new TextStyle({
+      fontFamily: 'Bangers',
+      fontSize: 22,
+      fill: isUnderPar ? '#4ade80' : '#ffc947',
+    });
+    const sub = new Text({ text: resultText, style: subStyle });
+    sub.x = px + PW / 2 - sub.width / 2;
+    sub.y = py + 74;
+    this.addChild(sub);
 
-    Array(totalEmjois)
-      .fill(null)
-      .forEach((_, i) => {
-        const t = new Text({ text });
+    // Play Again button
+    const btnW = 170;
+    const btnH = 44;
+    const btnX = px + (PW - btnW) / 2;
+    const btnY = py + PH - btnH - 16;
 
-        t.x = getRandomIntBetween(getRandomIntBetween(0, 50), this.gameState.width - 100);
-        t.y = getRandomIntBetween(getRandomIntBetween(0, 50), 100);
+    const btnShadow = new Graphics();
+    btnShadow.roundRect(btnX, btnY + 4, btnW, btnH, 8);
+    btnShadow.fill(0x1a4a30);
+    this.addChild(btnShadow);
 
-        this.container.push(t);
-        this.directionsX[i] = getRandomInt(4) % 2 === 0 ? 'left' : 'right';
-        this.directionsY[i] = getRandomInt(4) % 2 === 0 ? 'up' : 'down';
-      });
+    const btn = new Graphics();
+    btn.roundRect(btnX, btnY, btnW, btnH, 8);
+    btn.fill(0x2d6a4f);
+    btn.eventMode = 'static';
+    btn.cursor = 'pointer';
+    btn.on('pointerdown', this.onReset);
+    this.addChild(btn);
 
-    this.addChild(rect);
-    this.container.forEach((c) => this.addChild(c));
-    this.addChild(over);
+    const btnText = new Text({
+      text: 'Play Again 🔁',
+      style: new TextStyle({ fontFamily: 'Bangers', fontSize: 20, fill: '#ffffff' }),
+    });
+    btnText.x = btnX + btnW / 2 - btnText.width / 2;
+    btnText.y = btnY + btnH / 2 - btnText.height / 2;
+    this.addChild(btnText);
   }
 
   public update(_delta: Ticker) {
-    this.container.forEach((t, i) => {
-      if (this.directionsX[i] === 'right') {
-        if (t.x >= this.gameState.width - 100) {
-          this.directionsX[i] = 'left';
-        }
-      }
+    const W = this.gameState.width;
+    const H = this.gameState.height;
 
-      if (this.directionsX[i] === 'left') {
-        if (t.x <= 50) {
-          this.directionsX[i] = 'right';
-        }
-      }
+    this.emojis.forEach((t, i) => {
+      if (this.directionsX[i] === 'right' && t.x >= W - 40) this.directionsX[i] = 'left';
+      if (this.directionsX[i] === 'left' && t.x <= 20) this.directionsX[i] = 'right';
+      if (this.directionsY[i] === 'down' && t.y >= H - 40) this.directionsY[i] = 'up';
+      if (this.directionsY[i] === 'up' && t.y <= 20) this.directionsY[i] = 'down';
 
-      if (this.directionsY[i] === 'down') {
-        if (t.y >= 120) {
-          this.directionsY[i] = 'up';
-        }
-      }
-
-      if (this.directionsY[i] === 'up') {
-        if (t.y <= 50) {
-          this.directionsY[i] = 'down';
-        }
-      }
-
-      let newX = t.x;
-      let newY = t.y;
-
-      // console.log(this.directionsX[i]);
-      if (this.directionsX[i] === 'left') {
-        newX = t.x - 0.35;
-      }
-
-      if (this.directionsX[i] === 'right') {
-        newX = t.x + 0.35;
-      }
-
-      if (this.directionsY[i] === 'down') {
-        newY = t.y + 0.35;
-      }
-
-      if (this.directionsY[i] === 'up') {
-        newY = t.y - 0.35;
-      }
-
-      t.x = newX;
-      t.y = newY;
+      t.x += this.directionsX[i] === 'right' ? 0.35 : -0.35;
+      t.y += this.directionsY[i] === 'down' ? 0.35 : -0.35;
     });
   }
 }

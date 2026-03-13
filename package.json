@@ -13,7 +13,7 @@
   "devDependencies": {
     "@types/howler": "^2.2.12",
     "@vite-pwa/assets-generator": "^0.2.6",
-    "firebase-tools": "^13.30.0",
+    "firebase-tools": "^15.0.0",
     "prettier": "^3.4.2",
     "typescript": "~5.7.2",
     "vite": "^6.0.7",
@@ -28,6 +28,7 @@
     "a11y-dialog": "^8.1.1",
     "gsap": "^3.12.7",
     "howler": "^2.2.4",
-    "pixi.js": "^8.7.2"
+    "pixi.js": "^8.7.2",
+    "simplex-noise": "^4.0.3"
   }
 }
