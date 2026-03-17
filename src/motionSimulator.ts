@@ -20,10 +20,10 @@ export class MotionSimulator {
     this.vy = 0;
   }
 
-  applyForce(force: number, angle: number) {
+  applyForce(force: number, angle: number, multiplier: number = 2.7) {
     const angleRad = (angle * Math.PI) / 180;
-    this.vx = force * Math.cos(angleRad) * 2.7;
-    this.vy = force * Math.sin(angleRad) * 2.7;
+    this.vx = force * Math.cos(angleRad) * multiplier;
+    this.vy = force * Math.sin(angleRad) * multiplier;
   }
 
   update(_angle: number) {
@@ -55,6 +55,16 @@ export class MotionSimulator {
 
   public getHeading() {
     return (Math.atan2(this.vy, this.vx) * 180) / Math.PI;
+  }
+
+  public deflect(degrees: number) {
+    const rad = (degrees * Math.PI) / 180;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+    const newVx = this.vx * cos - this.vy * sin;
+    const newVy = this.vx * sin + this.vy * cos;
+    this.vx = newVx;
+    this.vy = newVy;
   }
 
   public setPosition(x: number, y: number) {

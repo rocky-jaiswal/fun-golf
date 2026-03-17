@@ -38,8 +38,10 @@ export class GameState {
   public holePositionX: number = 0;
   public holePositionY: number = 0;
 
-  public autoRotation: boolean = true;
-  public manualRotation: boolean = false;
+  // Force multiplier so full power (100) travels ~1/3 of the smaller screen dimension.
+  // Derivation: total_dist ≈ force * multiplier * dt / (1 - damping) = force * m * 0.08 / 0.06
+  // → m = min(w,h) / (3 * 100 * 0.08/0.06) = min(w,h) / 400
+  public readonly forceMultiplier: number;
 
   public ballInMotion: boolean = false;
   public ballInHole: boolean = false;
@@ -62,6 +64,8 @@ export class GameState {
 
     this.width = props.width;
     this.height = props.height;
+
+    this.forceMultiplier = Math.min(this.width, this.height) / 400;
 
     this.noOfCols = Math.floor(this.width / GameState.gridSize);
     this.noOfRows = Math.floor(this.height / GameState.gridSize);

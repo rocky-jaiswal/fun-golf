@@ -1,14 +1,16 @@
-import { FederatedPointerEvent, Graphics, Sprite, Ticker } from 'pixi.js';
+import { Graphics, Sprite, Ticker } from 'pixi.js';
 
 import { GameState } from './gameState';
 import { MotionSimulator } from './motionSimulator';
+
+
 
 export class BallHelper extends Graphics {
   private gameState: GameState;
   private ballSprite: Sprite;
 
-  private forceTimer: NodeJS.Timeout | null = null;
   private simulator: MotionSimulator | null = null;
+  private readonly fireBound: () => void;
 
   constructor(gameState: GameState, ballSprite: Sprite) {
     super();
@@ -16,33 +18,10 @@ export class BallHelper extends Graphics {
     this.gameState = gameState;
     this.ballSprite = ballSprite;
 
-    // Event setup
-    this.eventMode = 'static';
-
-    this.on('pointerenter', () => {
-      this.onEnter();
-    });
-    this.on('pointermove', (e) => {
-      this.onMove(e);
-    });
-    this.on('pointerleave', () => {
-      this.onLeave();
-    });
-    this.on('pointerdown', () => {
-      this.onPress();
-    });
-    this.on('pointerup', () => {
-      this.onRelease();
-    });
+    this.fireBound = this.fire.bind(this);
+    this.gameState.eventEmitter.on('shotFired', this.fireBound);
 
     this.draw();
-  }
-
-  private powerColor(pct: number): number {
-    if (pct < 0.33) return 0x00ff04;
-    if (pct < 0.55) return 0xfffe00;
-    if (pct < 0.78) return 0xff5700;
-    return 0xff0000;
   }
 
   public draw() {
@@ -58,23 +37,6 @@ export class BallHelper extends Graphics {
 
     this.circle(cx, cy, 33);
     this.fill({ color: '#f4de66', alpha: 0.5 });
-
-    // Power arc — shown when force has been charged above default
-    if (this.gameState.hitForce > 10) {
-      const pct = (this.gameState.hitForce - 10) / 90;
-      const startAngle = -Math.PI / 2;
-      const endAngle = startAngle + pct * Math.PI * 2;
-
-      // Background ring — moveTo prevents stray line from origin
-      this.moveTo(cx + 42, cy);
-      this.arc(cx, cy, 42, 0, Math.PI * 2);
-      this.stroke({ width: 4, color: 0xffffff, alpha: 0.15 });
-
-      // Charged arc
-      this.moveTo(cx + 42 * Math.cos(startAngle), cy + 42 * Math.sin(startAngle));
-      this.arc(cx, cy, 42, startAngle, endAngle);
-      this.stroke({ width: 4, color: this.powerColor(pct), alpha: 0.9 });
-    }
   }
 
   public hide() {
@@ -83,55 +45,21 @@ export class BallHelper extends Graphics {
     this.ballSprite.alpha = 0;
   }
 
-  private onEnter() {
-    this.gameState.autoRotation = false;
-    this.gameState.manualRotation = true;
-  }
+  private fire() {
+    if (this.gameState.ballInMotion) return;
 
-  private onMove(e: FederatedPointerEvent) {
-    if (this.gameState.manualRotation) {
-      const angleRadians = Math.atan2(
-        e.globalY - (this.gameState.ballPositionY + GameState.ballRadius),
-        e.globalX - (this.gameState.ballPositionX + GameState.ballRadius),
-      );
-
-      const angleDegrees = angleRadians * (180 / Math.PI);
-      this.gameState.hitAngle = angleDegrees;
-    }
-  }
-
-  private onLeave() {
-    this.gameState.autoRotation = true;
-    this.gameState.manualRotation = false;
-
-    if (this.forceTimer) {
-      clearInterval(this.forceTimer!);
-      this.forceTimer = null;
-    }
-
-    this.gameState.hitForce = 10;
-  }
-
-  private onPress() {
-    this.forceTimer = setInterval(() => {
-      if (this.gameState.hitForce < 100) {
-        this.gameState.hitForce = this.gameState.hitForce + 10;
-      }
-    }, 200);
-  }
-
-  private onRelease() {
-    if (this.forceTimer) {
-      clearInterval(this.forceTimer!);
-      this.forceTimer = null;
-    }
-
-    this.clear(); // do not show helper circle when ball is in motion
+    this.clear();
     this.gameState.addScoringEvent('hit');
     this.gameState.ballInMotion = true;
 
     this.simulator = new MotionSimulator(this.gameState.ballPositionX, this.gameState.ballPositionY);
-    this.simulator.applyForce(this.gameState.hitForce, this.gameState.hitAngle);
+    this.simulator.applyForce(this.gameState.hitForce, this.gameState.hitAngle, this.gameState.forceMultiplier);
+  }
+
+  public treeDeflect() {
+    if (!this.simulator) return;
+    this.simulator.deflect(60);
+    this.gameState.hitAngle = this.simulator.getHeading();
   }
 
   public bounceHorizontal() {
@@ -153,6 +81,10 @@ export class BallHelper extends Graphics {
     this.simulator?.setPosition(x, y);
   }
 
+  public cleanup() {
+    this.gameState.eventEmitter.off('shotFired', this.fireBound);
+  }
+
   public update(_delta: Ticker) {
     if (this.destroyed || !this.ballSprite || this.ballSprite.destroyed) return;
 
@@ -172,7 +104,13 @@ export class BallHelper extends Graphics {
     if (!this.gameState.ballInHazard && !this.gameState.calculatingNewBallPosition) {
       this.ballSprite.x = this.gameState.ballPositionX + GameState.ballRadius;
       this.ballSprite.y = this.gameState.ballPositionY + GameState.ballRadius;
-      this.draw();
+
+      // Only draw the helper circle when the ball is stationary
+      if (!this.gameState.ballInMotion) {
+        this.draw();
+      } else {
+        this.clear();
+      }
     }
 
     if (!this.gameState.ballInMotion) return;
@@ -198,7 +136,6 @@ export class BallHelper extends Graphics {
       this.gameState.ballInMotion = false;
       this.gameState.hitForce = 20;
 
-      // redraw the ball hit helper now
       this.draw();
     }
   }

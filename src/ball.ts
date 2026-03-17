@@ -48,6 +48,10 @@ export class Ball {
     this.ballHelper?.correctPosition(x, y);
   }
 
+  public treeDeflect() {
+    this.ballHelper?.treeDeflect();
+  }
+
   public bounceHorizontal() {
     this.ballHelper?.bounceHorizontal();
   }
@@ -61,6 +65,7 @@ export class Ball {
     this.ballSprite?.destroy();
     this.ballSprite = null;
 
+    this.ballHelper?.cleanup();
     this.ballHelper?.removeAllListeners();
     this.ballHelper?.destroy();
     this.ballHelper = null;

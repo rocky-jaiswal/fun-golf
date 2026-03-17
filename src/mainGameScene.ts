@@ -160,12 +160,13 @@ export class MainGameScene extends Container implements GameScene {
     if (hasHitTree) {
       if (!this.treeCollisionActive) {
         this.treeCollisionActive = true;
-        this.gameState.hitAngle = this.gameState.hitAngle + 60;
 
-        // move the ball a bit
-        const rand = getRandomInt(4);
-        const newX = this.gameState.ballPositionX + 12 * (rand % 2 === 0 ? 1 : -1);
-        const newY = this.gameState.ballPositionY + 12 * (rand % 2 === 0 ? 1 : -1);
+        // Rotate the velocity vector 60° so the ball actually deflects
+        this.ball?.treeDeflect();
+
+        // Nudge position out of the tree cell (independent x/y randomness)
+        const newX = this.gameState.ballPositionX + 14 * (Math.random() > 0.5 ? 1 : -1);
+        const newY = this.gameState.ballPositionY + 14 * (Math.random() > 0.5 ? 1 : -1);
         this.ball?.correctPosition(newX, newY);
       }
 

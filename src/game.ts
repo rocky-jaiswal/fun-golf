@@ -15,6 +15,9 @@ import { SceneManager } from './sceneManager';
 import { ResultScene } from './resultScene';
 import { ScoreHud } from './scoreHud';
 import { HelpOverlay } from './helpOverlay';
+import { GolfControl } from './golfControl';
+import { Clouds } from './clouds';
+import { Wind } from './wind';
 import { GameScene } from './types';
 
 export class Game {
@@ -53,21 +56,37 @@ export class Game {
   }
 
   private scoreHud: ScoreHud | null = null;
+  private golfControl: GolfControl | null = null;
+  private clouds: Clouds | null = null;
+  private wind: Wind | null = null;
 
   private startGame() {
     this.sceneManager.addScene('game', new MainGameScene(this.gameState));
     this.sceneManager.addScene('result', new ResultScene(this.gameState, this.onReset));
 
+    // Create HUD elements (added to stage inside raiseHud so z-order is correct)
+    this.golfControl = new GolfControl(this.gameState);
+
+    this.clouds = new Clouds(this.gameState);
+    this.clouds.init();
+
+    this.wind = new Wind(this.gameState);
+    this.wind.init();
+
     this.scoreHud = new ScoreHud(this.gameState, this.onReset, () => this.toggleHelp());
-    this.gameState.application.stage.addChild(this.scoreHud);
 
     this.currentScene = this.sceneManager.switchTo('game', () => this.raiseHud());
     this.currentScene.init();
   }
 
+  // Called after each scene switch — re-adds HUD elements above the scene in correct z-order
   private raiseHud() {
-    if (this.scoreHud) this.gameState.application.stage.addChild(this.scoreHud);
-    if (this.helpOverlay) this.gameState.application.stage.addChild(this.helpOverlay);
+    const stage = this.gameState.application.stage;
+    if (this.clouds) stage.addChild(this.clouds.container);
+    if (this.wind) stage.addChild(this.wind.container);
+    this.golfControl?.raise(stage);
+    if (this.scoreHud) stage.addChild(this.scoreHud);
+    if (this.helpOverlay) stage.addChild(this.helpOverlay);
   }
 
   private toggleHelp() {
@@ -84,6 +103,7 @@ export class Game {
     this.gameState.application.ticker.remove(this.boundUpdate);
     this.htSound?.unload();
     this.hoSound?.unload();
+    this.golfControl?.destroy();
   }
 
   update(delta: Ticker) {
@@ -94,6 +114,10 @@ export class Game {
       this.currentScene = this.sceneManager.switchTo('result', () => this.raiseHud());
       this.currentScene.init();
     }
+
+    this.clouds?.update(delta);
+    this.wind?.update(delta);
+    this.golfControl?.update(delta);
 
     if (this.currentScene) {
       this.currentScene.update(delta);

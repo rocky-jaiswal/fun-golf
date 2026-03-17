@@ -38,10 +38,10 @@ export class HelpOverlay extends Container {
     // Instructions
     const lines = [
       '• Get the ball into the hole in as few strokes as possible',
-      '• Hover over the ball to aim, or let the line auto-rotate to your desired direction',
-      '• Click & hold to charge power: Green = low power & Red = max power',
+      '• Watch the AIM wheel spin, then click HIT to lock your direction',
+      '• The POWER bar oscillates green → red. Click HIT again to fire!',
       '• Water or sand resets your ball and costs a stroke',
-      '• Trees deflect the ball — use them or avoid them!',
+      '• Trees deflect the ball, use them or avoid them!',
       '• Finish at or under par for a perfect round',
     ];
 
