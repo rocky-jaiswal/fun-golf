@@ -15,61 +15,21 @@ export const createApp = async () => {
   document.getElementById('app')!.appendChild(application.canvas);
 
   let currentGame: Game | null = null;
-  let isStarting = false;
-  let pendingRestart = false;
-  let resizeTimer: number | null = null;
 
   const startGame = async () => {
-    if (isStarting) {
-      pendingRestart = true;
-      return;
+    if (currentGame) {
+      currentGame.destroy();
     }
+    application.stage.removeChildren();
 
-    isStarting = true;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const eventEmitter = new EventEmitter();
 
-    try {
-      if (currentGame) {
-        currentGame.destroy();
-      }
-      application.stage.removeChildren();
-
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const eventEmitter = new EventEmitter();
-
-      const gameState = new GameState({ application, width, height, eventEmitter });
-      currentGame = new Game(gameState, startGame);
-      await currentGame.init();
-    } catch (error) {
-      console.error('[startGame] failed', error);
-      pendingRestart = true;
-    } finally {
-      isStarting = false;
-      if (pendingRestart) {
-        pendingRestart = false;
-        void startGame();
-      }
-    }
+    const gameState = new GameState({ application, width, height, eventEmitter });
+    currentGame = new Game(gameState, startGame);
+    await currentGame.init();
   };
-
-  const scheduleRestart = () => {
-    if (resizeTimer) {
-      window.clearTimeout(resizeTimer);
-    }
-
-    resizeTimer = window.setTimeout(() => {
-      void startGame();
-      resizeTimer = null;
-    }, 160);
-  };
-
-  window.addEventListener('resize', scheduleRestart, { passive: true });
-  window.addEventListener('orientationchange', scheduleRestart, { passive: true });
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      scheduleRestart();
-    }
-  });
 
   await startGame();
 };
