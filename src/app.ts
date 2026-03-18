@@ -40,6 +40,9 @@ export const createApp = async () => {
       const gameState = new GameState({ application, width, height, eventEmitter });
       currentGame = new Game(gameState, startGame);
       await currentGame.init();
+    } catch (error) {
+      console.error('[startGame] failed', error);
+      pendingRestart = true;
     } finally {
       isStarting = false;
       if (pendingRestart) {
@@ -61,6 +64,12 @@ export const createApp = async () => {
   };
 
   window.addEventListener('resize', scheduleRestart, { passive: true });
+  window.addEventListener('orientationchange', scheduleRestart, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      scheduleRestart();
+    }
+  });
 
   await startGame();
 };
