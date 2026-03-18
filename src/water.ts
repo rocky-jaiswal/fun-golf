@@ -26,7 +26,7 @@ export class Water {
   private draw() {
     this.gfx.clear();
     for (const cell of this.cells) {
-      const n = (this.noise2D(cell.x * 0.02, cell.y * 0.02 + this.elapsed * 0.5) + 1) / 2;
+      const n = (this.noise2D(cell.x * 0.02, cell.y * 0.02 + this.elapsed * 0.05) + 1) / 2;
       const r = Math.round(WATER_DARK.r + (WATER_LIGHT.r - WATER_DARK.r) * n);
       const g = Math.round(WATER_DARK.g + (WATER_LIGHT.g - WATER_DARK.g) * n);
       const b = Math.round(WATER_DARK.b + (WATER_LIGHT.b - WATER_DARK.b) * n);
