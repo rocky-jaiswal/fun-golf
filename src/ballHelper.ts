@@ -53,12 +53,15 @@ export class BallHelper extends Graphics {
     this.gameState.ballInMotion = true;
 
     this.simulator = new MotionSimulator(this.gameState.ballPositionX, this.gameState.ballPositionY);
-    this.simulator.applyForce(this.gameState.hitForce, this.gameState.hitAngle, this.gameState.forceMultiplier);
+    const multiplier = this.gameState.hitForce === 100
+      ? this.gameState.forceMultiplier * 1.1
+      : this.gameState.forceMultiplier;
+    this.simulator.applyForce(this.gameState.hitForce, this.gameState.hitAngle, multiplier);
   }
 
   public treeDeflect() {
     if (!this.simulator) return;
-    this.simulator.deflect(60);
+    this.simulator.deflect(35);
     this.gameState.hitAngle = this.simulator.getHeading();
   }
 

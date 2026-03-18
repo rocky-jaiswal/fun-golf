@@ -11,7 +11,7 @@ export class GolfControl {
   private readonly wheelR = 32;
   private wheelAngle: number;
   private wheelRotDir: number;
-  private readonly wheelSpeed = 0.022; // radians per frame
+  private readonly wheelSpeed = 0.032; // radians per frame
   private dirLocked = false;
   private wheelBg!: Graphics;
   private wheelIndicator!: Graphics;
@@ -23,7 +23,7 @@ export class GolfControl {
   private readonly barH = 14;
   private powerPos: number; // 0 to 1
   private powerDir: number; // 1 or -1
-  private powerSpeed = 0.007; // varies slightly each shot
+  private powerSpeed = 0.01; // varies slightly each shot
   private powerLocked = false;
   private powerMarker!: Graphics;
 
@@ -50,28 +50,12 @@ export class GolfControl {
     this.powerPos = 0.2 + Math.random() * 0.4;
     this.powerDir = Math.random() > 0.5 ? 1 : -1;
 
-    // Place the panel in whichever bottom corner the ball is NOT in.
-    // Ball starts in one of the four grid corners; check which quadrant it occupies.
-    const ballOnRight  = gameState.ballPositionX > gameState.width / 2;
-    const ballOnBottom = gameState.ballPositionY > gameState.height / 2;
-
-    // Only lift the panel when the ball is specifically in the bottom-right corner;
-    // elsewhere the normal bottom position is fine and less jarring.
-    const verticalLift = (ballOnRight && ballOnBottom) ? gameState.height * 0.1 : 0;
-
-    this.btnCy = gameState.height - 65 - this.btnH / 2 - verticalLift;
-
-    if (ballOnRight) {
-      // Ball is on the right → panel goes to bottom-left
-      this.btnCx = 25 + this.btnW / 2 + gameState.width * 0.06;
-      this.barX  = this.btnCx + this.btnW / 2 + 20;            // bar to the right of button
-      this.wheelCx = this.barX + this.barW + 20 + this.wheelR; // wheel to the right of bar
-    } else {
-      // Ball is on the left → panel goes to bottom-right (default)
-      this.btnCx = gameState.width - 25 - this.btnW / 2 - gameState.width * 0.06;
-      this.barX  = this.btnCx - this.btnW / 2 - 20 - this.barW; // bar to the left of button
-      this.wheelCx = this.barX - 20 - this.wheelR;               // wheel to the left of bar
-    }
+    // Place the panel centered at the bottom of the screen.
+    // Layout left-to-right: wheel | bar | button (total width 284px)
+    this.btnCy   = gameState.height - 65 - this.btnH / 2;
+    this.wheelCx = Math.round(gameState.width / 2 - 110);
+    this.barX    = Math.round(gameState.width / 2 - 58);
+    this.btnCx   = Math.round(gameState.width / 2 + 107);
 
     this.barY    = this.btnCy - this.barH / 2;
     this.wheelCy = this.btnCy;
@@ -96,9 +80,9 @@ export class GolfControl {
 
     const panel = new Graphics();
     panel.roundRect(panelLeft, panelTop, panelRight - panelLeft, panelBottom - panelTop, 16);
-    panel.fill({ color: 0x0a0a1a, alpha: 0.62 });
+    panel.fill({ color: 0x0a0a1a, alpha: 0.25 });
     panel.roundRect(panelLeft, panelTop, panelRight - panelLeft, panelBottom - panelTop, 16);
-    panel.stroke({ color: 0x2255aa, width: 1.5, alpha: 0.7 });
+    panel.stroke({ color: 0x2255aa, width: 1.5, alpha: 0.55 });
     this.container.addChild(panel);
 
     // ── Direction wheel ──────────────────────────────────────────
@@ -336,7 +320,7 @@ export class GolfControl {
     this.wheelRotDir = Math.random() > 0.5 ? 1 : -1;
     this.powerPos = 0.2 + Math.random() * 0.4;
     this.powerDir = Math.random() > 0.5 ? 1 : -1;
-    this.powerSpeed = 0.005 + Math.random() * 0.005; // 0.005–0.010 per frame
+    this.powerSpeed = 0.008 + Math.random() * 0.005; // 0.008–0.013 per frame
   }
 
   public raise(stage: Container) {

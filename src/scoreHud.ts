@@ -6,7 +6,7 @@ const PAD = 16;
 const HUD_H = 60;
 const BTN_R = 20; // circle radius
 const BTN_GAP = 10;
-const HUD_W = 430;
+const HUD_W = 360;
 const ACCENT = 0x52b788;
 const CORNER = 14;
 
@@ -35,7 +35,7 @@ export class ScoreHud extends Container {
     // Background panel
     const bg = new Graphics();
     bg.roundRect(x, y, HUD_W, HUD_H, CORNER);
-    bg.fill({ color: 0x0d1f14, alpha: 0.45 });
+    bg.fill({ color: 0x0d1f14, alpha: 0.25 });
     this.addChild(bg);
 
     // Green border stroke
@@ -80,7 +80,7 @@ export class ScoreHud extends Container {
     });
 
     // --- Par section ---
-    const parCx = x + PAD + 68 + 50;
+    const parCx = x + PAD + 68 + 38;
 
     const parLabel = new Text({ text: 'PAR', style: labelStyle });
     parLabel.x = parCx - parLabel.width / 2;
@@ -94,12 +94,12 @@ export class ScoreHud extends Container {
 
     // Divider
     const div = new Graphics();
-    div.rect(x + PAD + 68 + 104, y + 10, 1, HUD_H - 20);
+    div.rect(x + PAD + 68 + 80, y + 10, 1, HUD_H - 20);
     div.fill({ color: ACCENT, alpha: 0.3 });
     this.addChild(div);
 
     // --- Score section ---
-    const scoreCx = x + PAD + 68 + 160;
+    const scoreCx = x + PAD + 68 + 126;
 
     const scoreLabel = new Text({ text: 'SCORE', style: labelStyle });
     scoreLabel.x = scoreCx - scoreLabel.width / 2;
@@ -149,7 +149,7 @@ export class ScoreHud extends Container {
       style: new TextStyle({ fontFamily: 'Bangers', fontSize: 17, fill: '#ffffff' }),
     });
     t.x = cx - t.width / 2;
-    t.y = cy - t.height / 2;
+    t.y = cy - t.height / 2 - 4;
     btn.addChild(t);
 
     btn.on('pointerdown', onClick);
@@ -166,7 +166,7 @@ export class ScoreHud extends Container {
       if (this.parText) {
         this.parText.text = `${par}`;
         this.parText.x =
-          this.gameState.width - HUD_W - PAD + PAD + 68 + 50 - this.parText.width / 2;
+          this.gameState.width - HUD_W - PAD + PAD + 68 + 38 - this.parText.width / 2;
       }
     });
 
@@ -174,7 +174,7 @@ export class ScoreHud extends Container {
       if (this.scoreText) {
         this.scoreText.text = `${this.gameState.score}`;
         this.scoreText.x =
-          this.gameState.width - HUD_W - PAD + PAD + 68 + 160 - this.scoreText.width / 2;
+          this.gameState.width - HUD_W - PAD + PAD + 68 + 126 - this.scoreText.width / 2;
       }
     });
   }

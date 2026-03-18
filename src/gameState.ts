@@ -65,7 +65,7 @@ export class GameState {
     this.width = props.width;
     this.height = props.height;
 
-    this.forceMultiplier = Math.min(this.width, this.height) / 400;
+    this.forceMultiplier = Math.min(this.width, this.height) / 300;
 
     this.noOfCols = Math.floor(this.width / GameState.gridSize);
     this.noOfRows = Math.floor(this.height / GameState.gridSize);

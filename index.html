@@ -3,14 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <title>Fun Golf</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="Fun Golf">
-    <meta name="theme-color" content="#63b097">
+    <meta name="theme-color" content="#1a2e10">
+
+    <!-- iOS PWA fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <meta property="og:title" content="Fun Golf">
     <meta property="og:type" content="game" />
     <meta property="og:url" content="https://fun-golf-2025.web.app">
     <meta property="og:image" content="/fun_golf_splash.png" />
+
+    <!-- PWA / Mobile App -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fun Golf">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fun-golf-2025.web.app">
+    <meta property="og:title" content="Fun Golf - Play Free Online Golf Game">
+    <meta property="og:description" content="Fun Golf">
+    <meta property="og:image" content="https://fun-golf-2025.web.app/app_splash_1.png" />
+    <meta property="og:image:width" content="768">
+    <meta property="og:image:height" content="512">
+    <meta property="og:site_name" content="Fun Golf">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://fun-golf-2025.web.app">
+    <meta name="twitter:title" content="Fun Golf - Play Free Online Golf Game">
+    <meta name="twitter:description" content="Fun Golf">
+    <meta name="twitter:image" content="https://fun-golf-2025.web.app/app_splash_1.png">
 
     <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
@@ -21,6 +50,24 @@
 
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #2a4b1a;
+        touch-action: none;
+      }
+
+      #app {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
     </style>
   </head>
   <body>

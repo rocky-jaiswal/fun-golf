@@ -161,7 +161,7 @@ export class MainGameScene extends Container implements GameScene {
       if (!this.treeCollisionActive) {
         this.treeCollisionActive = true;
 
-        // Rotate the velocity vector 60° so the ball actually deflects
+        // Rotate the velocity vector 35° so the ball actually deflects
         this.ball?.treeDeflect();
 
         // Nudge position out of the tree cell (independent x/y randomness)

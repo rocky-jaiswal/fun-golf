@@ -12,7 +12,9 @@ export default defineConfig({
         name: 'Fun Golf',
         short_name: 'Fun Golf',
         description: 'Fun Golf',
-        theme_color: '#63b097',
+        theme_color: '#1a2e10',
+        background_color: '#1a2e10',
+        display: 'fullscreen',
         icons: [
           {
             src: 'pwa-96x96.png',
@@ -38,18 +40,18 @@ export default defineConfig({
         ],
         screenshots: [
           {
-            src: 'fun_golf_splash.png', // add desktop sreenshot
+            src: 'fun_golf_splash.png',
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'wide',
             label: 'Fun Golf',
           },
           {
-            src: 'pwa-512x512.png', // add mobile screenshot
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'narrow',
-            label: 'FUn Golf',
+            label: 'Fun Golf',
           },
         ],
       },
