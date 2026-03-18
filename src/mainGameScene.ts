@@ -183,10 +183,32 @@ export class MainGameScene extends Container implements GameScene {
         // Rotate the velocity vector 35° so the ball actually deflects
         this.ball?.treeDeflect();
 
-        // Nudge position out of the tree cell (independent x/y randomness)
-        const newX = this.gameState.ballPositionX + 14 * (Math.random() > 0.5 ? 1 : -1);
-        const newY = this.gameState.ballPositionY + 14 * (Math.random() > 0.5 ? 1 : -1);
-        this.ball?.correctPosition(newX, newY);
+        // Push ball to the nearest edge of the tree cell it's inside
+        const hitArea = this.gameState.treeAreas.find((area) =>
+          this.gameState.isPointInArea({ x: this.gameState.ballPositionX, y: this.gameState.ballPositionY }, area),
+        );
+
+        if (hitArea) {
+          const bx = this.gameState.ballPositionX;
+          const by = this.gameState.ballPositionY;
+          const margin = GameState.ballRadius + 2;
+
+          const distLeft   = bx - hitArea.x;
+          const distRight  = hitArea.x + hitArea.width  - bx;
+          const distTop    = by - hitArea.y;
+          const distBottom = hitArea.y + hitArea.height - by;
+
+          const min = Math.min(distLeft, distRight, distTop, distBottom);
+
+          let newX = bx;
+          let newY = by;
+          if      (min === distLeft)   newX = hitArea.x - margin;
+          else if (min === distRight)  newX = hitArea.x + hitArea.width  + margin;
+          else if (min === distTop)    newY = hitArea.y - margin;
+          else                         newY = hitArea.y + hitArea.height + margin;
+
+          this.ball?.correctPosition(newX, newY);
+        }
       }
 
       // Update game objects
