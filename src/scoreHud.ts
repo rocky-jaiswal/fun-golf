@@ -134,21 +134,21 @@ export class ScoreHud extends Container {
 
     // Game title (left brand)
     const titleStyle = new TextStyle({ fontFamily: 'Bangers', fontSize: titleValueFontSize + 10, fill: '#ffc947', letterSpacing: 1 });
-    const titleTop = new Text({ text: 'FUN', style: titleStyle });
+    const titleTop = new Text({ text: '⛳ FUN', style: titleStyle });
     const titleBot = new Text({
-      text: 'GOLF ⛳',
+      text: 'GOLF',
       style: new TextStyle({ fontFamily: 'Bangers', fontSize: titleValueFontSize, fill: '#74c69d', letterSpacing: 1 }),
     });
     titleTop.x = hudX + PAD;
-    titleTop.y = hudY + 6;
-    titleBot.x = hudX + PAD;
+    titleTop.y = hudY - 4;
+    titleBot.x = hudX + PAD + 42;
     titleBot.y = hudY + 30;
     this.addChild(titleTop);
     this.addChild(titleBot);
 
     // Title divider
     const titleDiv = new Graphics();
-    titleDiv.rect(titleDividerX, hudY + 10, 1, HUD_H - 20);
+    titleDiv.rect(titleDividerX + 20, hudY + 10, 1, HUD_H - 20);
     titleDiv.fill({ color: ACCENT, alpha: 0.3 });
     this.addChild(titleDiv);
 
