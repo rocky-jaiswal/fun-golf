@@ -20,7 +20,7 @@ export class SceneManager {
     this.allScenes.set(name, scene);
   }
 
-  switchTo(sceneName: string, onSwitched?: () => void): GameScene {
+  switchTo(sceneName: string, onSwitched?: () => void, keepPrevious = false): GameScene {
     const newScene = this.allScenes.get(sceneName);
 
     if (!newScene) {
@@ -40,7 +40,7 @@ export class SceneManager {
       alpha: 1,
       duration: 0.25,
       onComplete: () => {
-        if (previousScene) {
+        if (previousScene && !keepPrevious) {
           (previousScene as unknown as GameScene).cleanup?.();
           this.gameState.application.stage.removeChild(previousScene);
         }

@@ -25,6 +25,12 @@ export class ResultScene extends Container implements GameScene {
 
     const W = this.gameState.width;
     const H = this.gameState.height;
+
+    const dimOverlay = new Graphics();
+    dimOverlay.rect(0, 0, W, H);
+    dimOverlay.fill({ color: 0x000000, alpha: 0.45 });
+    this.addChild(dimOverlay);
+
     const isAtOrUnderPar = this.gameState.score <= this.gameState.parScore;
     const emoji = isAtOrUnderPar ? '⛳' : '👍';
 

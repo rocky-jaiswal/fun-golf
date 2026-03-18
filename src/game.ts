@@ -133,7 +133,7 @@ export class Game {
 
     if (this.gameState.ballInHole && !this.gameState.gameEnded) {
       this.gameState.gameEnded = true;
-      this.currentScene = this.sceneManager.switchTo('result', () => this.raiseHud());
+      this.currentScene = this.sceneManager.switchTo('result', () => this.raiseHud(), true);
       this.currentScene.init();
     }
 
