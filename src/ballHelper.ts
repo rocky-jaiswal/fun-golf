@@ -45,18 +45,46 @@ export class BallHelper extends Graphics {
     this.ballSprite.alpha = 0;
   }
 
+  public stopTrajectory(options: { x?: number; y?: number; force?: number } = {}) {
+    const { x, y, force = 20 } = options;
+
+    if (this.simulator) {
+      this.simulator.setVelocity(0, 0);
+      if (x !== undefined && y !== undefined) {
+        this.simulator.setPosition(x, y);
+      }
+    }
+
+    this.ballSprite.alpha = 1;
+    this.gameState.ballVelocityX = 0;
+    this.gameState.ballVelocityY = 0;
+    this.gameState.ballInMotion = false;
+    this.gameState.calculatingNewBallPosition = false;
+    this.gameState.hitForce = force;
+
+    if (x !== undefined && y !== undefined) {
+      this.gameState.ballPositionX = x;
+      this.gameState.ballPositionY = y;
+    }
+
+    this.draw();
+  }
+
   private fire() {
     if (this.gameState.ballInMotion) return;
 
     this.clear();
     this.gameState.addScoringEvent('hit');
     this.gameState.ballInMotion = true;
+    const force = Number.isFinite(this.gameState.hitForce) ? this.gameState.hitForce : 0;
+    const clampedForce = Math.max(5, Math.min(100, force));
+    this.gameState.hitForce = clampedForce;
 
     this.simulator = new MotionSimulator(this.gameState.ballPositionX, this.gameState.ballPositionY);
     const multiplier = this.gameState.hitForce === 100
       ? this.gameState.forceMultiplier * 1.1
       : this.gameState.forceMultiplier;
-    this.simulator.applyForce(this.gameState.hitForce, this.gameState.hitAngle, multiplier);
+    this.simulator.applyForce(clampedForce, this.gameState.hitAngle, multiplier);
   }
 
   public treeDeflect() {
@@ -118,15 +146,21 @@ export class BallHelper extends Graphics {
 
     if (!this.gameState.ballInMotion) return;
 
-    const state = this.simulator?.update(this.gameState.hitAngle);
+    const frameDelta = this.getFrameDelta(_delta);
+    const state = this.simulator?.update(frameDelta);
     if (!state) {
       this.gameState.ballInMotion = false;
       this.gameState.hitForce = 20;
       return;
     }
 
-    this.gameState.ballPositionX = Math.ceil(state.x);
-    this.gameState.ballPositionY = Math.ceil(state.y);
+    if (!Number.isFinite(state.x) || !Number.isFinite(state.y)) {
+      this.stopTrajectory();
+      return;
+    }
+
+    this.gameState.ballPositionX = Math.round(state.x);
+    this.gameState.ballPositionY = Math.round(state.y);
 
     this.gameState.ballVelocityX = state.vx;
     this.gameState.ballVelocityY = state.vy;
@@ -141,5 +175,25 @@ export class BallHelper extends Graphics {
 
       this.draw();
     }
+  }
+
+  private getFrameDelta(delta: Ticker): number {
+    const asObject = delta as unknown as { deltaTime?: number; deltaMS?: number };
+
+    if (typeof asObject.deltaTime === 'number' && Number.isFinite(asObject.deltaTime) && asObject.deltaTime > 0) {
+      // Newer Pixi versions expose a frame-multiplier here (~1.0 at 60 FPS).
+      // Older versions and some runtimes can expose elapsed ms (~16 at 60 FPS).
+      if (asObject.deltaTime > 5) {
+        return asObject.deltaTime / 16.6666666667;
+      }
+
+      return asObject.deltaTime;
+    }
+
+    if (typeof asObject.deltaMS === 'number' && Number.isFinite(asObject.deltaMS) && asObject.deltaMS > 0) {
+      return asObject.deltaMS / 16.6666666667;
+    }
+
+    return 1;
   }
 }

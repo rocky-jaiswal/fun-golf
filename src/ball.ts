@@ -44,6 +44,13 @@ export class Ball {
     this.ballHelper?.hide();
   }
 
+  public stopMotion(x?: number, y?: number) {
+    this.ballHelper?.stopTrajectory({
+      x,
+      y,
+    });
+  }
+
   public correctPosition(x: number, y: number) {
     this.ballHelper?.correctPosition(x, y);
   }

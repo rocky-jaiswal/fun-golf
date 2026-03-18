@@ -9,6 +9,7 @@ export class MotionSimulator {
   // Constants
   private readonly minThreshold: number = 0.9;
   private readonly dt: number = 0.08;
+  private readonly maxFrameDelta: number = 4;
 
   constructor(initialX: number, initialY: number) {
     // Position
@@ -26,12 +27,16 @@ export class MotionSimulator {
     this.vy = force * Math.sin(angleRad) * multiplier;
   }
 
-  update(_angle: number) {
-    this.x += this.vx * this.dt;
-    this.y += this.vy * this.dt;
+  update(frameDelta: number) {
+    const safeDelta = this.normalizeFrameDelta(frameDelta);
+    const clampedDelta = Math.min(this.maxFrameDelta, safeDelta);
+    const dampedStep = Math.pow(this.dampingCoefficient, clampedDelta);
 
-    this.vx *= this.dampingCoefficient;
-    this.vy *= this.dampingCoefficient;
+    this.x += this.vx * this.dt * clampedDelta;
+    this.y += this.vy * this.dt * clampedDelta;
+
+    this.vx *= dampedStep;
+    this.vy *= dampedStep;
 
     // Stop motion if it's below threshold
     if (Math.abs(this.vx) < this.minThreshold) this.vx = 0;
@@ -43,6 +48,19 @@ export class MotionSimulator {
       vx: this.vx,
       vy: this.vy,
     };
+  }
+
+  private normalizeFrameDelta(frameDelta: number) {
+    if (!Number.isFinite(frameDelta) || frameDelta <= 0) {
+      return 1;
+    }
+
+    // Guard for callers that may pass elapsed milliseconds instead of frame scale.
+    if (frameDelta > 5) {
+      return frameDelta / 16.6666666667;
+    }
+
+    return frameDelta;
   }
 
   public reflectX() {
@@ -65,6 +83,11 @@ export class MotionSimulator {
     const newVy = this.vx * sin + this.vy * cos;
     this.vx = newVx;
     this.vy = newVy;
+  }
+
+  public setVelocity(vx: number, vy: number) {
+    this.vx = vx;
+    this.vy = vy;
   }
 
   public setPosition(x: number, y: number) {

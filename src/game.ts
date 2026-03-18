@@ -29,12 +29,16 @@ export class Game {
   private helpOverlay: HelpOverlay | null = null;
   private htSound: Howl | null = null;
   private hoSound: Howl | null = null;
+  private readonly onHit: () => void;
+  private readonly onInHole: () => void;
 
   constructor(gameState: GameState, onReset: () => void) {
     this.gameState = gameState;
     this.onReset = onReset;
     this.sceneManager = new SceneManager(gameState);
     this.boundUpdate = this.update.bind(this);
+    this.onHit = () => this.htSound?.play();
+    this.onInHole = () => this.hoSound?.play();
     this.gameState.application.ticker.add(this.boundUpdate);
   }
 
@@ -49,8 +53,8 @@ export class Game {
     this.htSound = new Howl({ src: hitSound });
     this.hoSound = new Howl({ src: holeSound });
 
-    this.gameState.eventEmitter.on('hit', () => this.htSound?.play());
-    this.gameState.eventEmitter.on('inHole', () => this.hoSound?.play());
+    this.gameState.eventEmitter.on('hit', this.onHit);
+    this.gameState.eventEmitter.on('inHole', this.onInHole);
 
     this.startGame();
   }
@@ -101,9 +105,27 @@ export class Game {
 
   public destroy() {
     this.gameState.application.ticker.remove(this.boundUpdate);
+    this.sceneManager.destroy();
+    this.gameState.eventEmitter.off('hit', this.onHit);
+    this.gameState.eventEmitter.off('inHole', this.onInHole);
     this.htSound?.unload();
     this.hoSound?.unload();
+    this.clouds?.destroy();
+    this.wind?.destroy();
+    this.scoreHud?.destroy();
     this.golfControl?.destroy();
+    if (this.helpOverlay) {
+      this.helpOverlay.destroy();
+      this.helpOverlay = null;
+    }
+    this.currentScene = null;
+    this.clouds = null;
+    this.wind = null;
+    this.golfControl = null;
+    this.scoreHud = null;
+
+    this.htSound = null;
+    this.hoSound = null;
   }
 
   update(delta: Ticker) {

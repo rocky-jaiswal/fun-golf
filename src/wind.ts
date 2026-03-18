@@ -100,4 +100,8 @@ export class Wind {
       }
     }
   }
+
+  public destroy() {
+    this.container.destroy({ children: true });
+  }
 }

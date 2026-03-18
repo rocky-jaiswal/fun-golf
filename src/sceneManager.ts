@@ -69,4 +69,19 @@ export class SceneManager {
 
     return this.currentScene as unknown as GameScene;
   }
+
+  public destroy() {
+    this.allScenes.forEach((scene) => {
+      (scene as unknown as GameScene).cleanup?.();
+
+      if (scene.parent) {
+        scene.parent.removeChild(scene);
+      }
+
+      scene.destroy({ children: true });
+    });
+
+    this.allScenes.clear();
+    this.currentScene = null;
+  }
 }

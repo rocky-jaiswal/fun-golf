@@ -25,8 +25,8 @@ export class ResultScene extends Container implements GameScene {
 
     const W = this.gameState.width;
     const H = this.gameState.height;
-    const isUnderPar = this.gameState.score <= this.gameState.parScore;
-    const emoji = isUnderPar ? '⛳' : '👍';
+    const isAtOrUnderPar = this.gameState.score <= this.gameState.parScore;
+    const emoji = isAtOrUnderPar ? '⛳' : '👍';
 
     // Floating emojis spread across full screen
     Array(24).fill(null).forEach((_, i) => {
@@ -48,7 +48,7 @@ export class ResultScene extends Container implements GameScene {
     const panel = new Graphics();
     panel.roundRect(px, py, PW, PH, 14);
     panel.fill({ color: 0x000000, alpha: 0.78 });
-    panel.stroke({ color: isUnderPar ? 0x4ade80 : 0xffc947, width: 2 });
+    panel.stroke({ color: isAtOrUnderPar ? 0x4ade80 : 0xffc947, width: 2 });
     this.addChild(panel);
 
     const titleStyle = new TextStyle({
@@ -62,13 +62,13 @@ export class ResultScene extends Container implements GameScene {
     title.y = py + 16;
     this.addChild(title);
 
-    const resultText = isUnderPar
-      ? `Under par! ${emoji}`
+    const resultText = isAtOrUnderPar
+      ? `At or under par! ${emoji}`
       : `Score: ${this.gameState.score}  /  Par: ${this.gameState.parScore}`;
     const subStyle = new TextStyle({
       fontFamily: 'Bangers',
       fontSize: 22,
-      fill: isUnderPar ? '#4ade80' : '#ffc947',
+      fill: isAtOrUnderPar ? '#4ade80' : '#ffc947',
     });
     const sub = new Text({ text: resultText, style: subStyle });
     sub.x = px + PW / 2 - sub.width / 2;

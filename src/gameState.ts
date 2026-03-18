@@ -14,6 +14,7 @@ export class GameState {
   public static readonly gridSize = 50.0;
   public static readonly holeRadius = 10;
   public static readonly ballRadius = 6;
+  private static readonly minMapDimension = 4;
 
   public readonly application: Application;
   public readonly eventEmitter: EventEmitter;
@@ -67,10 +68,14 @@ export class GameState {
 
     this.forceMultiplier = Math.min(this.width, this.height) / 300;
 
-    this.noOfCols = Math.floor(this.width / GameState.gridSize);
-    this.noOfRows = Math.floor(this.height / GameState.gridSize);
+    const cols = Math.max(GameState.minMapDimension, Math.floor(this.width / GameState.gridSize));
+    const rows = Math.max(GameState.minMapDimension, Math.floor(this.height / GameState.gridSize));
+    this.noOfCols = cols;
+    this.noOfRows = rows;
 
-    this.numberOfTrees = Math.floor(this.width / GameState.gridSize) + getRandomInt(7); // based on random experiments
+    const targetTrees = Math.floor(cols / 1) + getRandomInt(7); // based on random experiments
+    const maxTrees = Math.max(0, this.noOfCols * this.noOfRows - 2); // keep room for hole and ball
+    this.numberOfTrees = Math.max(0, Math.min(targetTrees, maxTrees));
 
     this.init();
   }
@@ -111,36 +116,69 @@ export class GameState {
   }
 
   private addHole() {
+    const maxIterations = this.noOfCols * this.noOfRows * 2;
     let x = Math.ceil(this.noOfCols / 2);
     let y = Math.ceil(this.noOfRows / 2);
+    let iter = 0;
 
-    let exists = false;
-
-    while (!exists) {
+    while (iter < maxIterations) {
       if (this.mainMap[`${x}|${y}`] === 'G') {
         this.mainMap[`${x}|${y}`] = 'H';
-
-        exists = true;
-        break;
+        this.holePositionX = x * 50 + 25;
+        this.holePositionY = y * 50 + 25;
+        return;
       }
 
-      x = x + 1;
-      y = y - 1;
+      x = this.wrapCoord(x + 1, this.noOfCols);
+      y = this.wrapCoord(y - 1, this.noOfRows);
+      iter += 1;
     }
 
-    this.holePositionX = x * 50 + 25;
-    this.holePositionY = y * 50 + 25;
+    const fallback = Object.keys(this.mainMap).find((k: string) => this.mainMap[k] === 'G');
+    if (!fallback) {
+      this.mainMap['0|0'] = 'H';
+      this.holePositionX = 25;
+      this.holePositionY = 25;
+      return;
+    }
+
+    this.mainMap[fallback] = 'H';
+    const [fallbackX, fallbackY] = fallback.split('|').map((p) => parseInt(p, 10));
+    this.holePositionX = fallbackX * 50 + 25;
+    this.holePositionY = fallbackY * 50 + 25;
   }
 
   private addBall() {
-    [
+    const candidates = [
       [2, 2],
       [2, this.noOfRows - 2],
       [this.noOfCols - 2, 2],
       [this.noOfCols - 2, this.noOfRows - 2],
-    ].map((arr) => {
-      this.mainMap[`${arr[0]}|${arr[1]}`] = 'B';
+    ].map((arr) => [this.clampCoord(arr[0], this.noOfCols - 1), this.clampCoord(arr[1], this.noOfRows - 1)]);
+
+    const unique = new Set<string>();
+
+    candidates.forEach((arr) => {
+      const x = arr[0];
+      const y = arr[1];
+      const key = `${x}|${y}`;
+      unique.add(key);
     });
+
+    unique.forEach((key) => {
+      if (this.mainMap[key] === 'G') {
+        this.mainMap[key] = 'B';
+      }
+    });
+
+    if (!Object.keys(this.mainMap).some((k: string) => this.mainMap[k] === 'B')) {
+      const fallback = Object.keys(this.mainMap).find((k: string) => this.mainMap[k] === 'G');
+      if (fallback) {
+        this.mainMap[fallback] = 'B';
+      } else {
+        this.mainMap['0|0'] = 'B';
+      }
+    }
   }
 
   private addWater() {
@@ -213,8 +251,13 @@ export class GameState {
 
   private addTrees() {
     let iter = 0;
+    const availableCells = Object.keys(this.mainMap).filter((k: string) => this.mainMap[k] === 'G').length;
+    const maxPlaceableTrees = Math.min(this.numberOfTrees, availableCells);
+    const maxIterations = maxPlaceableTrees * 10 + 1;
+    let attempts = 0;
 
-    while (iter < this.numberOfTrees) {
+    while (iter < maxPlaceableTrees && attempts < maxIterations) {
+      attempts += 1;
       let x = getRandomInt(this.noOfCols);
       let y = getRandomInt(this.noOfRows);
 
@@ -225,9 +268,31 @@ export class GameState {
     }
   }
 
+  private wrapCoord(value: number, max: number) {
+    if (max <= 0) return 0;
+    const wrapped = ((value % max) + max) % max;
+    return wrapped;
+  }
+
+  private clampCoord(value: number, max: number) {
+    return Math.max(0, Math.min(max, value));
+  }
+
   private finalizeBallPosAndParScore() {
-    const holePos = Object.keys(this.mainMap).find((k: string) => this.mainMap[k] === 'H')!;
+    const holePos = Object.keys(this.mainMap).find((k: string) => this.mainMap[k] === 'H');
     const ballPos = Object.keys(this.mainMap).filter((k: string) => this.mainMap[k] === 'B');
+
+    if (!holePos) {
+      return;
+    }
+
+    if (ballPos.length === 0) {
+      const fallbackBall = Object.keys(this.mainMap).find((k: string) => this.mainMap[k] === 'G');
+      if (fallbackBall) {
+        this.mainMap[fallbackBall] = 'B';
+        ballPos.push(fallbackBall);
+      }
+    }
 
     const hx = parseInt(holePos.split('|')[0]);
     const hy = parseInt(holePos.split('|')[1]);
@@ -282,11 +347,11 @@ export class GameState {
 
     // console.log(obstacles);
 
-    const max = Math.max(...obstacles);
+    const max = obstacles.length > 0 ? Math.max(...obstacles) : 0;
     const finalPos = obstacles.findIndex((o) => o === max);
 
     ballPos.forEach((p, i) => {
-      if (i !== finalPos) {
+      if (i !== finalPos || finalPos === -1) {
         this.mainMap[p] = 'G';
       }
     });
@@ -304,9 +369,12 @@ export class GameState {
     }
 
     const pos = Object.keys(this.mainMap).find((k: string) => this.mainMap[k] === 'B');
+    if (!pos) {
+      return;
+    }
 
-    const x = parseInt(pos!.split('|')[0]);
-    const y = parseInt(pos!.split('|')[1]);
+    const x = parseInt(pos.split('|')[0]);
+    const y = parseInt(pos.split('|')[1]);
 
     this.ballPositionX = x * 50 + 25;
     this.ballPositionY = y * 50 + 25;

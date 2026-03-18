@@ -40,50 +40,49 @@ export class MainGameScene extends Container implements GameScene {
   }
 
   private handleHazards(isInWater: boolean, isInSand: boolean) {
-    // this is called a few times in less than a millisecond
-    // so this causes glitching
-    const resetBall = (areas: GameArea[]) => {
-      // console.log(1);
-      this.gameState.ballVelocityX = 0;
-      this.gameState.ballVelocityY = 0;
+    if (this.gameState.calculatingNewBallPosition || (!isInWater && !isInSand)) {
+      return;
+    }
 
+    this.gameState.calculatingNewBallPosition = true;
+    this.gameState.ballInHazard = true;
+
+    this.ball?.hide();
+    this.helpLine?.hide();
+
+    this.gameState.addScoringEvent(isInWater ? 'water' : 'sand');
+
+    const areas: GameArea[] = isInWater ? this.gameState.waterAreas : this.gameState.sandAreas;
+
+    const resetBall = (areas: GameArea[]) => {
       let x = this.gameState.ballPositionX;
       let y = this.gameState.ballPositionY;
-
       let safety = 0;
-      while (this.gameState.ballInHazard && safety < 60) {
-        safety++;
-        this.gameState.ballInHazard = areas.some((area) => {
-          return this.gameState.isPointInArea({ x: x, y: y }, area);
-        });
+      const isInHazard = () => areas.some((area) => this.gameState.isPointInArea({ x, y }, area));
 
+      while (isInHazard() && safety < 60) {
+        safety++;
         const rand = getRandomInt(4);
         x = x + 12 * (rand % 2 === 0 ? 1 : -1);
         y = y + 12 * (rand % 2 === 0 ? 1 : -1);
+
+        x = Math.min(Math.max(0, x), this.gameState.width - GameState.ballRadius * 2);
+        y = Math.min(Math.max(0, y), this.gameState.height - GameState.ballRadius * 2);
       }
 
-      if (this.gameState.ballInHazard) {
-        x = this.gameState.width / 2;
-        y = this.gameState.height / 2;
-        this.gameState.ballInHazard = false;
+      if (isInHazard()) {
+        x = Math.min(Math.max(0, this.gameState.width / 2), this.gameState.width - GameState.ballRadius * 2);
+        y = Math.min(Math.max(0, this.gameState.height / 2), this.gameState.height - GameState.ballRadius * 2);
       }
 
-      this.gameState.ballPositionX = x;
-      this.gameState.ballPositionY = y;
-      this.gameState.calculatingNewBallPosition = this.gameState.ballInHazard;
+      this.ball?.stopMotion(x, y);
+      return { x, y };
     };
 
-    if (isInWater && !this.gameState.calculatingNewBallPosition) {
-      this.gameState.calculatingNewBallPosition = true; // by the time this is set resetBall is called a few times
-      this.gameState.addScoringEvent('water');
-      resetBall(this.gameState.waterAreas);
-    }
+    resetBall(areas);
 
-    if (isInSand && !this.gameState.calculatingNewBallPosition) {
-      this.gameState.calculatingNewBallPosition = true;
-      this.gameState.addScoringEvent('sand');
-      resetBall(this.gameState.sandAreas);
-    }
+    this.gameState.ballInHazard = false;
+    this.gameState.calculatingNewBallPosition = false;
   }
 
   private handleBallInHole() {
@@ -93,17 +92,37 @@ export class MainGameScene extends Container implements GameScene {
   }
 
   public update(delta: Ticker) {
+    const ballCenter = {
+      x: this.gameState.ballPositionX + GameState.ballRadius,
+      y: this.gameState.ballPositionY + GameState.ballRadius,
+    };
+
+    const holeCenter = {
+      x: this.gameState.holePositionX,
+      y: this.gameState.holePositionY,
+    };
+
+    const dx = ballCenter.x - holeCenter.x;
+    const dy = ballCenter.y - holeCenter.y;
+    const distToHole = Math.sqrt(dx * dx + dy * dy);
+    const isSlowEnough = Math.abs(this.gameState.ballVelocityX) < 35 && Math.abs(this.gameState.ballVelocityY) < 35;
+    const isCloseEnoughForHole = distToHole <= GameState.holeRadius + GameState.ballRadius;
+
     const isInHole =
-      Math.abs(this.gameState.ballVelocityX) < 30 &&
-      Math.abs(this.gameState.ballVelocityY) < 30 &&
-      this.gameState.doCirclesIntersectSignificantly(
+      isSlowEnough &&
+      (this.gameState.doCirclesIntersectSignificantly(
         {
-          x: this.gameState.ballPositionX + GameState.ballRadius,
-          y: this.gameState.ballPositionY + GameState.ballRadius,
+          x: ballCenter.x,
+          y: ballCenter.y,
           r: GameState.ballRadius,
         },
-        { x: this.gameState.holePositionX, y: this.gameState.holePositionY, r: GameState.holeRadius },
-      );
+        {
+          x: this.gameState.holePositionX,
+          y: this.gameState.holePositionY,
+          r: GameState.holeRadius,
+        },
+      ) ||
+        isCloseEnoughForHole);
 
     if (isInHole) {
       this.gameState.eventEmitter.emit('inHole');
@@ -194,10 +213,7 @@ export class MainGameScene extends Container implements GameScene {
         this.gameState.isPointInArea({ x: this.gameState.ballPositionX, y: this.gameState.ballPositionY }, area),
       );
 
-    if (isInWater || isInSand || this.gameState.ballInHazard || this.gameState.calculatingNewBallPosition) {
-      this.gameState.ballInHazard = true;
-      this.ball?.hide();
-      this.helpLine?.hide();
+    if (isInWater || isInSand) {
       this.handleHazards(isInWater, isInSand);
 
       return;

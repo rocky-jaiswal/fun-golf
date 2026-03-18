@@ -66,4 +66,8 @@ export class Clouds {
       }
     }
   }
+
+  public destroy() {
+    this.container.destroy({ children: true });
+  }
 }
