@@ -44,6 +44,9 @@ export class GameState {
   // → m = min(w,h) / (3 * 100 * 0.08/0.06) = min(w,h) / 400
   public readonly forceMultiplier: number;
 
+  // Radius of the fairway (green) circle drawn around the hole; scales with screen size
+  public readonly fairwayRadius: number;
+
   public ballInMotion: boolean = false;
   public ballInHole: boolean = false;
   public ballInHazard: boolean = false;
@@ -67,6 +70,7 @@ export class GameState {
     this.height = props.height;
 
     this.forceMultiplier = Math.min(this.width, this.height) / 300;
+    this.fairwayRadius = Math.min(this.width, this.height) / 11;
 
     const cols = Math.max(GameState.minMapDimension, Math.floor(this.width / GameState.gridSize));
     const rows = Math.max(GameState.minMapDimension, Math.floor(this.height / GameState.gridSize));
@@ -204,7 +208,7 @@ export class GameState {
         };
 
         iter2 += 1;
-        if (x >= 0 && x < this.noOfCols && y >= 0 && y < this.noOfRows && this.mainMap[`${x}|${y}`] === 'G') {
+        if (x >= 0 && x < this.noOfCols && y >= 0 && y < this.noOfRows && this.mainMap[`${x}|${y}`] === 'G' && !this.isCellInFairway(x, y)) {
           this.mainMap[`${x}|${y}`] = 'W';
           // console.log(1);
 
@@ -238,7 +242,7 @@ export class GameState {
         };
 
         iter2 += 1;
-        if (x >= 0 && x < this.noOfCols && y >= 0 && y < this.noOfRows && this.mainMap[`${x}|${y}`] === 'G') {
+        if (x >= 0 && x < this.noOfCols && y >= 0 && y < this.noOfRows && this.mainMap[`${x}|${y}`] === 'G' && !this.isCellInFairway(x, y)) {
           this.mainMap[`${x}|${y}`] = 'S';
           // console.log(1);
 
@@ -261,11 +265,22 @@ export class GameState {
       let x = getRandomInt(this.noOfCols);
       let y = getRandomInt(this.noOfRows);
 
-      if (this.mainMap[`${x}|${y}`] === 'G') {
+      if (this.mainMap[`${x}|${y}`] === 'G' && !this.isCellInFairway(x, y)) {
         this.mainMap[`${x}|${y}`] = 'T';
         iter += 1;
       }
     }
+  }
+
+  private isCellInFairway(col: number, row: number): boolean {
+    // Use nearest point on the cell to the hole — catches cells that partially overlap the fairway
+    const cellX = col * 50;
+    const cellY = row * 50;
+    const nearestX = Math.max(cellX, Math.min(this.holePositionX, cellX + 50));
+    const nearestY = Math.max(cellY, Math.min(this.holePositionY, cellY + 50));
+    const dx = nearestX - this.holePositionX;
+    const dy = nearestY - this.holePositionY;
+    return Math.sqrt(dx * dx + dy * dy) < this.fairwayRadius;
   }
 
   private wrapCoord(value: number, max: number) {
