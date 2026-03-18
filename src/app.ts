@@ -17,7 +17,7 @@ export const createApp = async () => {
   let currentGame: Game | null = null;
   let isStarting = false;
   let pendingRestart = false;
-  let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+  let resizeTimer: number | null = null;
 
   const startGame = async () => {
     if (isStarting) {
