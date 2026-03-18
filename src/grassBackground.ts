@@ -5,11 +5,12 @@ import { GameState } from './gameState';
 
 const TILE = 12;
 
-// 3-stop gradient: dark forest → fairway green → olive-tinted light
+// 3-stop gradient: medium green → bright fairway → light lime
 const GRADIENT = [
-  { r: 0x32, g: 0x5e, b: 0x2c }, // dark forest
-  { r: 0x3f, g: 0x7a, b: 0x3a }, // fairway green
-  { r: 0x5a, g: 0x82, b: 0x44 }, // light olive
+  { r: 0x55, g: 0x8b, b: 0x4a }, // medium green
+  { r: 0x70, g: 0x9e, b: 0x51 }, // bright fairway
+  { r: 0x6b, g: 0x92, b: 0x51 }, // light lime
+  // '#5e9b52'
 ];
 
 function lerpColor(t: number): number {
