@@ -9,7 +9,6 @@ import { Hole } from './hole';
 import { GrassBackground } from './grassBackground';
 import { Fairway } from './fairway';
 // import { Road } from './road';
-import { Vignette } from './vignette';
 import { YardageMarkers } from './yardageMarkers';
 import { Ball } from './ball';
 import { RotatingLine } from './rotatingLine';
@@ -39,7 +38,6 @@ export class MainGameScene extends Container implements GameScene {
     Sand.addSand(this, this.gameState);
     YardageMarkers.add(this, this.gameState);
     Tree.addTrees(this, this.gameState);
-    Vignette.add(this, this.gameState);
 
     this.ball = new Ball(this.gameState).addBall(this);
     this.helpLine = new RotatingLine(this.gameState).addHelpLine(this);
