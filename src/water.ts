@@ -4,7 +4,7 @@ import { createNoise2D } from 'simplex-noise';
 import { GameState } from './gameState';
 import { MainGameScene } from './mainGameScene';
 
-const WATER_DARK = { r: 0x4a, g: 0x7e, b: 0xaa };
+const WATER_DARK  = { r: 0x4a, g: 0x7e, b: 0xaa };
 const WATER_LIGHT = { r: 0x85, g: 0xc6, b: 0xdf };
 
 export class Water {

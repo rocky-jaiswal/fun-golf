@@ -1,4 +1,3 @@
-import { Howl } from 'howler';
 import { Ticker, Assets } from 'pixi.js';
 
 import ballPNG from './assets/images/ball.png';
@@ -6,8 +5,8 @@ import tree3PNG from './assets/images/tree3.png';
 import tree4PNG from './assets/images/tree4.png';
 import tree5PNG from './assets/images/tree5.png';
 
-import hitSound from './assets/sounds/hit.mp3';
-import holeSound from './assets/sounds/hole.mp3';
+import { SoundManager } from './soundManager';
+import { SoundToggle } from './soundToggle';
 
 import { MainGameScene } from './mainGameScene';
 import { GameState } from './gameState';
@@ -18,6 +17,7 @@ import { HelpOverlay } from './helpOverlay';
 import { GolfControl } from './golfControl';
 import { Clouds } from './clouds';
 import { Wind } from './wind';
+import { Sunshine } from './sunshine';
 import { GameScene } from './types';
 
 export class Game {
@@ -27,18 +27,14 @@ export class Game {
   private readonly onReset: () => void;
   private readonly boundUpdate: (delta: Ticker) => void;
   private helpOverlay: HelpOverlay | null = null;
-  private htSound: Howl | null = null;
-  private hoSound: Howl | null = null;
-  private readonly onHit: () => void;
-  private readonly onInHole: () => void;
+  private soundManager: SoundManager | null = null;
+  private soundToggle: SoundToggle | null = null;
 
   constructor(gameState: GameState, onReset: () => void) {
     this.gameState = gameState;
     this.onReset = onReset;
     this.sceneManager = new SceneManager(gameState);
     this.boundUpdate = this.update.bind(this);
-    this.onHit = () => this.htSound?.play();
-    this.onInHole = () => this.hoSound?.play();
     this.gameState.application.ticker.add(this.boundUpdate);
   }
 
@@ -50,11 +46,7 @@ export class Game {
       { src: tree5PNG, alias: 'tree2' },
     ]);
 
-    this.htSound = new Howl({ src: hitSound });
-    this.hoSound = new Howl({ src: holeSound });
-
-    this.gameState.eventEmitter.on('hit', this.onHit);
-    this.gameState.eventEmitter.on('inHole', this.onInHole);
+    this.soundManager = new SoundManager(this.gameState.eventEmitter);
 
     this.startGame();
   }
@@ -63,6 +55,7 @@ export class Game {
   private golfControl: GolfControl | null = null;
   private clouds: Clouds | null = null;
   private wind: Wind | null = null;
+  private sun: Sunshine | null = null;
 
   private startGame() {
     this.sceneManager.addScene('game', new MainGameScene(this.gameState));
@@ -70,6 +63,9 @@ export class Game {
 
     // Create HUD elements (added to stage inside raiseHud so z-order is correct)
     this.golfControl = new GolfControl(this.gameState);
+
+    this.sun = new Sunshine(this.gameState);
+    this.soundToggle = new SoundToggle(this.gameState);
 
     this.clouds = new Clouds(this.gameState);
     this.clouds.init();
@@ -86,9 +82,11 @@ export class Game {
   // Called after each scene switch — re-adds HUD elements above the scene in correct z-order
   private raiseHud() {
     const stage = this.gameState.application.stage;
+    if (this.sun) stage.addChild(this.sun.container);
     if (this.clouds) stage.addChild(this.clouds.container);
     if (this.wind) stage.addChild(this.wind.container);
     this.golfControl?.raise(stage);
+    if (this.soundToggle) stage.addChild(this.soundToggle.container);
     if (this.scoreHud) stage.addChild(this.scoreHud);
     if (this.helpOverlay) stage.addChild(this.helpOverlay);
   }
@@ -106,10 +104,9 @@ export class Game {
   public destroy() {
     this.gameState.application.ticker.remove(this.boundUpdate);
     this.sceneManager.destroy();
-    this.gameState.eventEmitter.off('hit', this.onHit);
-    this.gameState.eventEmitter.off('inHole', this.onInHole);
-    this.htSound?.unload();
-    this.hoSound?.unload();
+    this.soundManager?.destroy();
+    this.soundToggle?.destroy();
+    this.sun?.destroy();
     this.clouds?.destroy();
     this.wind?.destroy();
     this.scoreHud?.destroy();
@@ -119,13 +116,13 @@ export class Game {
       this.helpOverlay = null;
     }
     this.currentScene = null;
+    this.soundManager = null;
+    this.soundToggle = null;
+    this.sun = null;
     this.clouds = null;
     this.wind = null;
     this.golfControl = null;
     this.scoreHud = null;
-
-    this.htSound = null;
-    this.hoSound = null;
   }
 
   update(delta: Ticker) {

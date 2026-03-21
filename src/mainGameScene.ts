@@ -13,6 +13,9 @@ import { YardageMarkers } from './yardageMarkers';
 import { Ball } from './ball';
 import { RotatingLine } from './rotatingLine';
 
+import { Flowers } from './flowers';
+import { Bushes } from './bushes';
+
 import { getRandomInt } from './util';
 import { GameArea, GameScene } from './types';
 
@@ -31,6 +34,8 @@ export class MainGameScene extends Container implements GameScene {
 
   public init() {
     GrassBackground.add(this, this.gameState);
+    Flowers.add(this, this.gameState);
+    Bushes.add(this, this.gameState);
     // Road.add(this, this.gameState);
     Fairway.add(this, this.gameState);
     Hole.addHole(this, this.gameState);
