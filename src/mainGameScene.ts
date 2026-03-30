@@ -106,20 +106,11 @@ export class MainGameScene extends Container implements GameScene {
       y: this.gameState.ballPositionY + GameState.ballRadius,
     };
 
-    const holeCenter = {
-      x: this.gameState.holePositionX,
-      y: this.gameState.holePositionY,
-    };
-
-    const dx = ballCenter.x - holeCenter.x;
-    const dy = ballCenter.y - holeCenter.y;
-    const distToHole = Math.sqrt(dx * dx + dy * dy);
     const isSlowEnough = Math.abs(this.gameState.ballVelocityX) < 35 && Math.abs(this.gameState.ballVelocityY) < 35;
-    const isCloseEnoughForHole = distToHole <= GameState.holeRadius + GameState.ballRadius;
 
     const isInHole =
       isSlowEnough &&
-      (this.gameState.doCirclesIntersectSignificantly(
+      this.gameState.doCirclesIntersectSignificantly(
         {
           x: ballCenter.x,
           y: ballCenter.y,
@@ -130,8 +121,7 @@ export class MainGameScene extends Container implements GameScene {
           y: this.gameState.holePositionY,
           r: GameState.holeRadius,
         },
-      ) ||
-        isCloseEnoughForHole);
+      );
 
     if (isInHole) {
       this.gameState.eventEmitter.emit('inHole');
